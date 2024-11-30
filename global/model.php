@@ -2142,11 +2142,28 @@ include('config.php');
 			}
 			return $data;
 		}
-
-
-
-
-
-
+		
+		public function addHearing($case_id, $hearing_date) {
+			$query = "INSERT INTO hearings (case_id, hearing_date) VALUES (?, ?)";
+			$stmt = $this->conn->prepare($query);
+			$stmt->execute([$case_id, $hearing_date]);
+		}
+		
+		public function getHearingSchedules($case_id) {
+			$query = "SELECT * FROM hearings WHERE case_id = ?";
+			$stmt = $this->conn->prepare($query);
+			$stmt->bind_param("i", $case_id);
+			$stmt->execute();
+			$result = $stmt->get_result(); 
+		
+			$schedules = [];
+			while ($row = $result->fetch_assoc()) {
+				$schedules[] = $row; 
+			}
+		
+			return $schedules; 
+		}
+		
+		
 	}
 ?>

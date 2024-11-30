@@ -131,6 +131,7 @@
 		ob_end_clean();
 		$obj_pdf->Output('Blotters.pdf', 'I');  
 	}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -218,8 +219,107 @@
 					</ul>
 				</div>  
 				
-				<?php include 'widget.php'; ?> 
+				<?php include 'widget.php'; ?>
+				
+				<div align="right">
+					<a href="" class="btn green radius-xl" style="background-color: #0000CD;" data-toggle="modal" data-target="#add-hearing"><i class="ti-agenda"></i><span>&nbsp;SCHEDULE HEARING</span></a>&nbsp;
+				</div>
+				
+				<div id="add-hearing" class="modal fade" role="dialog">
+					<form class="edit-profile m-b30" method="POST">
+						<div class="modal-dialog modal-lg">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">Schedule Hearings</h4>
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<!-- <input type="hidden" name="case_id" value="<?php echo $id; ?>"> -->
+										<div class="form-group col-12">
+											<label for="hearing_dates">Hearing Dates & Times (Up to 7)</label>
+											<div id="hearing-schedule-container">
+												<!-- JS will append input fields here -->
+											</div>
+											<button type="button" id="add-hearing-btn" class="btn green">Add Hearing</button>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<input type="submit" class="btn green radius-xl outline" name="add-hearing-confirm" value="Save Hearings">
+									<button type="button" class="btn red outline radius-xl" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+				<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+				<script>
+					document.addEventListener('DOMContentLoaded', function () {
+						const maxHearings = 7;
+						const hearingContainer = document.getElementById('hearing-schedule-container');
+						const addHearingBtn = document.getElementById('add-hearing-btn');
+						
+						addHearingBtn.addEventListener('click', function () {
+							const currentCount = hearingContainer.querySelectorAll('.hearing-input').length;
+
+							if (currentCount < maxHearings) {
+								const hearingInput = document.createElement('div');
+								hearingInput.classList.add('form-group');
+								hearingInput.innerHTML = `
+									<label>Hearing ${currentCount + 1}:</label>
+									<input type="datetime-local" name="hearings[]" class="form-control hearing-input" required>
+								`;
+								hearingContainer.appendChild(hearingInput);
+								flatpickr(hearingInput.querySelector('input'), {
+									enableTime: true, // Enable time picker
+									dateFormat: "Y-m-d h:i K", // Format for date and time with AM/PM indicator
+									time_24hr: false, // Use 12-hour format for time with AM/PM
+								});
+
+							} else {
+								alert('You can only schedule up to 7 hearings.');
+							}
+						});
+					});
+				</script>
+				<?php
+				
+				if (isset($_POST['add-hearing-confirm'])) {
+					$case_id = $idddd;
+					$hearings = $_POST['hearings']; // Array of hearing dates/times
+
+					if (count($hearings) <= 7) {
+						foreach ($hearings as $hearing) {
+							$model->addHearing($case_id, $hearing); // Save each hearing in the database
+						}
+						// Notify user and redirect
+						echo "<script>alert('Hearing schedules saved successfully!');</script>";
+						// echo "<script>window.location.href = 'blotters?id=" . $case_id . "';</script>"; 
+						echo "<script>window.location.href = 'blotters-details?id=" . $idddd . "';</script>"; 
+						exit;
+					} else {
+						echo "<script>alert('You can only save up to 7 hearings.');</script>";
+					}
+				}
+				
+				// Ensure $case_id is defined
+				if (isset($_GET['id'])) {
+					$case_id = $_GET['id']; // Retrieve case ID from the URL
+				} else {
+					die("Case ID is missing."); // Stop execution if not found
+				}
+
+				// Fetch hearing schedules
+				try {
+					$schedules = $model->getHearingSchedules($case_id); // Updated method
+				} catch (Exception $e) {
+					die("Error fetching schedules: " . $e->getMessage());
+				}
+				?>
+				
 				<div class="row">
 					<div class="col-lg-12 m-b30">
 						<h3>Blotter Details</h3>
@@ -286,11 +386,53 @@
 												<td>
 											<center><span class="badge badge-<?php echo $blotter_status2; ?>"><a href="" style="font-size: 14px;color: white;" data-toggle="modal" data-target="#status-<?php echo $row['id']; ?>"><?php echo $blotter_status; ?></a></span></center> 
 										</td>
-												<td><center><a href="residents-profile?id=<?php echo $resident_id; ?>" class="btn blue" style="width: 45px; height: 37px;"><div data-toggle="tooltip" title="Profile"><i class="ti-eye" style="font-size: 15px; margin-left:-4px;"></i></div></a>&nbsp;
+										<td>
+											<center><a href="#" class="btn yellow" style="width: 45px; height: 37px;" data-toggle="modal" data-target="#view-hearings-modal">
+												<div data-toggle="tooltip" title="View Hearings">
+													<i class="ti-agenda" style="font-size: 15px; margin-left: -4px;"></i>
+												</div>
+											</a>&nbsp;
+											<a href="residents-profile?id=<?php echo $resident_id; ?>" class="btn blue" style="width: 45px; height: 37px;"><div data-toggle="tooltip" title="Profile"><i class="ti-eye" style="font-size: 15px; margin-left:-4px;"></i></div></a>&nbsp;
 												<a href="" class="btn red" style="width: 45px; height: 37px;" data-toggle="modal" data-target="#decline-<?php echo $id; ?>"><div data-toggle="tooltip" title="Archive"><i class="ti-archive" style="font-size: 15px; margin-left:-5px;"></i></div></a></center>
 												</td>
-
 											</tr>
+											<!-- Modal Structure -->
+											<div id="view-hearings-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewHearingsModalLabel" aria-hidden="true">
+												<div class="modal-dialog modal-lg">
+													<div class="modal-content">
+														<div class="modal-header">
+															<h4 class="modal-title" id="viewHearingsModalLabel">Hearing Schedules</h4>
+															<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+																<span aria-hidden="true">&times;</span>
+															</button>
+														</div>
+														<div class="modal-body">
+															<?php
+															// Fetch hearings from the database
+															if (isset($case_id)) {
+																$hearings = $model->getHearingSchedules($case_id); // Fetch schedules
+																if (!empty($hearings)) {
+																	echo "<ul class='list-group'>";
+																	foreach ($hearings as $hearing) {
+																		echo "<li class='list-group-item'>";
+																		echo "<strong>Date & Time:</strong> " . date("F d, Y h:i A", strtotime($hearing['hearing_date']));
+																		echo "</li>";
+																	}
+																	echo "</ul>";
+																} else {
+																	echo "<p>No hearings scheduled for this case.</p>";
+																}
+															} else {
+																echo "<p>Case ID is missing.</p>";
+															}
+															?>
+														</div>
+														<div class="modal-footer">
+															<button type="button" class="btn red outline radius-xl" data-dismiss="modal">Close</button>
+														</div>
+													</div>
+												</div>
+											</div>
 											
 											<div id="status-<?php echo $row['id']; ?>" class="modal fade" role="dialog">
 										<form class="edit-profile m-b30" method="POST" enctype="multipart/form-data">
@@ -422,6 +564,7 @@
 												}
 
 											?>
+											
 										</tbody>
 									</table>
 								</div>
@@ -527,13 +670,7 @@
 								</div>
 							</div>
 
-
-
-
-
-
-
-
+							
 
 							<div class="row">
 									<div class="col-lg-6 m-b30">
@@ -606,6 +743,9 @@
 											}
 
 										?>
+
+
+
 									</div>
 									<div class="col-lg-12 m-b30">
 									<div class="table-responsive">

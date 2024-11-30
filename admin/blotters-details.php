@@ -218,7 +218,7 @@
 					</ul>
 				</div>  
 				
-				<?php include 'widget.php'; ?>
+				<?php include 'widget.php'; ?> 
 
 				<div class="row">
 					<div class="col-lg-12 m-b30">

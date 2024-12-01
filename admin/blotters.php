@@ -1,3 +1,4 @@
+
 <?php
     use setasign\Fpdi\Fpdi;
     
@@ -101,6 +102,7 @@
 				$fullname = $row['complaint_name'];
 				$brgy_case = $row['brgy_case'];
 				$accussation = $row['accussation'];
+				$witness = $row['witness'];
 				$date_filed = $row['date_filed'];
 				$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 				if ($blotter_status == "Settled") {
@@ -116,6 +118,7 @@
 					<td>'.$id.'</td>				
 			        <td>'.$first_name.' '.$middle_name.' '.$last_name.'</td>
 			        <td>'.$fullname.'</td>
+			        <td>'.$witness.'</td>
 			        <td>'.$accussation.'</td>
 			        <td>'.$date_filed.'</td>
 			        <td>'.$blotter_status.'</td>
@@ -130,6 +133,7 @@
 		$obj_pdf->Output('Blotters.pdf', 'I');  
 	}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -261,6 +265,7 @@
 														$date_added = $row['date_registered'];
 														$fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
+														$witness = $row['witness'];
 														$accussation = $row['accussation'];
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
@@ -287,6 +292,7 @@
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
 												<td><?php echo $fullname; ?></td>
+												<td><?php echo $witness; ?></td>
 												<td><?php echo $accussation; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
@@ -314,7 +320,6 @@
 												</td>
 											</tr>
 											
-
 											<div id="edit-<?php echo $row['id']; ?>" class="modal fade" role="dialog">
 										<form class="edit-profile m-b30" method="POST" enctype="multipart/form-data">
 											<div class="modal-dialog modal-lg">
@@ -377,6 +382,10 @@
 																<input class="form-control" type="text" value="<?php echo $fullname; ?>" readonly>
 															</div>
                                                             <div class="form-group col-12">
+																<label class="col-form-label">Witness</label>
+																<input class="form-control" type="text" value="<?php echo $witness; ?>" readonly>
+															</div>
+                                                            <div class="form-group col-12">
 																<label class="col-form-label">Accusation</label>
 																<input class="form-control" type="text" value="<?php echo $accussation; ?>" readonly>
 															</div>
@@ -412,6 +421,10 @@
 																	<div class="form-group col-6">
 																		<label class="col-form-label">Case ID</label>
 																		<input class="form-control" type="text" value="<?php echo $row['id']; ?>" readonly>
+																	</div>
+																	<div class="form-group col-6">
+																		<label class="col-form-label">Witness</label>
+																		<input class="form-control" type="text" value="<?php echo $row['witness']; ?>" readonly>
 																	</div>
 																	<div class="form-group col-6">
 																		<label class="col-form-label">Accusation</label>
@@ -526,11 +539,37 @@
 														        
 														        ?>
 															</select>
-														</div>
+										 				</div>
 														<div class="form-group col-6">
-															<label class="col-form-label"><b>Accusation</b></label>
-															<input class="form-control" type="text" name="accussation" required>
+															<label class="col-form-label"><b>Witness</b></label>
+															<input class="form-control" type="text" name="witness" required>
 														</div>
+														
+														<div class="form-group col-6">
+    <label class="col-form-label"><b>Accusation</b></label>
+    <select class="form-control" id="accussation_id" name="accussation_id">
+        <?php
+        // Fetch accusations dynamically
+        $accusations = $model->fetchAccusations();
+        if (!empty($accusations)) {
+            foreach ($accusations as $accusation) {
+                echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
+            }
+        }
+        ?>
+        <option value="other">Other</option>
+    </select>
+
+</div>
+
+<div class="form-group col-12">
+    <div id="otherInputField" style="display: none;">
+        <label for="otherInput">Please specify the accusation</label>
+        <input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter your text">
+    </div>
+</div>
+
+
 														<div class="form-group col-6">
 															<label class="col-form-label"><b>Complainant’s Full Name</b></label>
 															<input class="form-control" type="text" name="complaint_name" required>
@@ -590,10 +629,54 @@
 								<?php
 
 									if (isset($_POST['add-confirm'])) {
-										$model->addBlotters($_POST['resident_id'], 'N/A', $_POST['complaint_name'], $_POST['age'], $_POST['gender'], $_POST['address'], $_POST['contact'], $_POST['time'], $_POST['date'], $_POST['happened'], $_POST['accussation'], $_POST['date_filed'], $_POST['narrative2']);
+										$accusation = $_POST['accussation_id'];  // Get the selected accusation ID
+										
+										if ($accusation === 'other') {
+											// If 'other' was selected, get the custom accusation
+											$customAccusation = strtoupper(trim($_POST['custom_accusation']));
+											
+											if (!empty($customAccusation)) {
+												// Insert the custom accusation and get its ID
+												$accusation_id = $model->addAccusation($customAccusation);
+												
+												// Ensure the accusation was successfully inserted
+												if (!$accusation_id) {
+													echo "<script>alert('Failed to insert custom accusation.');</script>";
+													return;
+												}
+											} else {
+												echo "<script>alert('Please specify the accusation.');</script>";
+												return;
+											}
+										} else {
+											// Use the selected accusation ID (validate if it's a valid ID)
+											$accusation_id = (int)$accusation; // Ensure it's an integer ID
+											
+											// Optional: Validate if this ID exists in the accusations table
+											if (!$model->checkAccusationExists($accusation_id)) {
+												echo "<script>alert('Selected accusation does not exist.');</script>";
+												return;
+											}
+										}
+									
+										$model->addBlotters(
+											$_POST['resident_id'], 'N/A', 
+											$_POST['complaint_name'], 
+											$_POST['age'], 
+											$_POST['gender'], 
+											$_POST['address'], 
+											$_POST['contact'], 
+											$_POST['time'], 
+											$_POST['date'], 
+											$_POST['happened'], 
+											$accusation_id,  
+											$_POST['witness'], 
+											$_POST['date_filed'], 
+											$_POST['narrative2']);
                                         
                                             $complaint_name = strtoupper($_POST['complaint_name']);
-                                            $accussation = strtoupper($_POST['accussation']);
+                                            // $accussation = strtoupper($_POST['accussation']);
+                                            $witness = strtoupper($_POST['witness']);
                                             $happened = strtoupper($_POST['happened']);
                                             
                                             $complaint_name = strtoupper($_POST['complaint_name']);
@@ -678,6 +761,15 @@
 
 		<script type="text/javascript">
 			$(document).ready(function() {
+
+        // Toggle "Other" input field
+        $('#accussation_id').on('change', function() {
+            if ($(this).val() === 'other') {
+                $('#otherInputField').show();  // Show the input field
+            } else {
+                $('#otherInputField').hide();  // Hide the input field
+            }
+        });
 				$('#table').DataTable();
 			});
 			$(document).ready(function(){

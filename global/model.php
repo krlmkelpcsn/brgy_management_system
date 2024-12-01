@@ -788,21 +788,6 @@ include('config.php');
 			return $data;
 		}
 
-		public function displayBlotters($blot_status) {
-			$data = null;
-			$query = "SELECT a.*, b.*, b.id as blotter_id FROM residents AS a INNER JOIN blotters AS b ON a.id = b.resident_id WHERE b.status = ?";
-			if ($stmt = $this->conn->prepare($query)) {
-				$stmt->bind_param('i', $blot_status);
-				$stmt->execute();
-				$result = $stmt->get_result();
-				$num_of_rows = $stmt->num_rows;
-				while ($row = $result->fetch_assoc()) {
-					$data[] = $row;
-				}
-				$stmt->close();
-			}
-			return $data;
-		}
 		
 		public function displayNarrativeDetails($id) {
 			$data = null;
@@ -836,21 +821,6 @@ include('config.php');
 			return $data;
 		}
 		
-		public function displayBlotterDetails($id, $blot_status) {
-			$data = null;
-			$query = "SELECT a.*, b.*, b.id as blotter_id FROM residents AS a INNER JOIN blotters AS b ON a.id = b.resident_id WHERE b.id = ? AND b.status = ?";
-			if ($stmt = $this->conn->prepare($query)) {
-				$stmt->bind_param('ii', $id, $blot_status);
-				$stmt->execute();
-				$result = $stmt->get_result();
-				$num_of_rows = $stmt->num_rows;
-				while ($row = $result->fetch_assoc()) {
-					$data[] = $row;
-				}
-				$stmt->close();
-			}
-			return $data;
-		}
 
 		public function changeBlotterStatus($status, $blot_id) {
 			$query = "UPDATE blotters SET status = ? WHERE id = ?";
@@ -2165,22 +2135,53 @@ include('config.php');
 			}
 		}
 		
-		public function fetchAccusations() {
-			$data = null;
+		// public function fetchAccusations() {
+		// 	$data = null;
 		
-			$query = "SELECT id, accusation FROM accusations ORDER BY accusation ASC";
-			if ($stmt = $this->conn->prepare($query)) {
-				$stmt->execute();
-				$result = $stmt->get_result();
-				$num_of_rows = $stmt->num_rows;
-				while ($row = $result->fetch_assoc()) {
-					$data[] = $row;
-				}
-				$stmt->close();
-			}
+		// 	$query = "SELECT id, accusation FROM accusations ORDER BY accusation ASC";
+		// 	if ($stmt = $this->conn->prepare($query)) {
+		// 		$stmt->execute();
+		// 		$result = $stmt->get_result();
+		// 		$num_of_rows = $stmt->num_rows;
+		// 		while ($row = $result->fetch_assoc()) {
+		// 			$data[] = $row;
+		// 		}
+		// 		$stmt->close();
+		// 	}
 		
-			return $data;
-		}
+		// 	return $data;
+		// }
+	
+		// Fetch all accusations as an associative array
+// function fetchAccusations() {
+//     $sql = "SELECT id, accusation FROM accusations";
+//     $stmt = $this->pdo->query($sql);
+//     $accusations = [];
+//     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+//         $accusations[$row['id']] = $row['accusation'];
+//     }
+//     return $accusations;
+// }
+public function fetchAccusations() {
+    $sql = "SELECT id, accusation FROM accusations";
+    // Use MySQLi to prepare the query
+    $result = $this->conn->query($sql);
+
+    // Check if the query was successful
+    if (!$result) {
+        die('Query failed: ' . $this->conn->error);
+    }
+
+    $accusations = [];
+    // Fetch all rows from the result set
+    while ($row = $result->fetch_assoc()) {
+        $accusations[$row['id']] = $row['accusation'];
+    }
+
+    return $accusations;
+}
+
+		
 		
 		public function checkAccusationExists($accusation_id) {
 			$query = "SELECT COUNT(*) FROM accusations WHERE id = ?";
@@ -2218,6 +2219,66 @@ include('config.php');
 		public function getLastInsertId() {
 			return $this->conn->lastInsertId();
 		}
+		
+		// public function displayBlotters($blot_status) {
+		// 	$data = null;
+		// 	$query = "SELECT a.*, b.*, b.id as blotter_id FROM residents AS a INNER JOIN blotters AS b ON a.id = b.resident_id WHERE b.status = ?";
+		// 	if ($stmt = $this->conn->prepare($query)) {
+		// 		$stmt->bind_param('i', $blot_status);
+		// 		$stmt->execute();
+		// 		$result = $stmt->get_result();
+		// 		$num_of_rows = $stmt->num_rows;
+		// 		while ($row = $result->fetch_assoc()) {
+		// 			$data[] = $row;
+		// 		}
+		// 		$stmt->close();
+		// 	}
+		// 	return $data;
+		// }
+
+		public function displayBlotters($blot_status) {
+			$data = null;
+			$query = "
+				SELECT a.*, b.*, c.accusation, b.id AS blotter_id
+				FROM residents AS a
+				INNER JOIN blotters AS b ON a.id = b.resident_id
+				LEFT JOIN accusations AS c ON b.accusation_id = c.id
+				WHERE b.status = ?
+			";
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('i', $blot_status);
+				$stmt->execute();
+				$result = $stmt->get_result();
+				while ($row = $result->fetch_assoc()) {
+					$data[] = $row;
+				}
+				$stmt->close();
+			}
+			return $data;
+		}
+		
+		public function displayBlotterDetails($id, $blot_status) {
+			$data = null;
+			$query = "
+			SELECT a.*, b.*, c.accusation, b.id AS blotter_id
+				FROM residents AS a
+				INNER JOIN blotters AS b ON a.id = b.resident_id
+				LEFT JOIN accusations AS c ON b.accusation_id = c.id
+				WHERE b.status = ? AND b.id = ?
+			";
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('ii', $blot_status, $id); 
+				$stmt->execute();
+				$result = $stmt->get_result();
+				while ($row = $result->fetch_assoc()) {
+					$data[] = $row;
+				}
+				$stmt->close();
+			}
+			return $data;
+		}
+		
+		
 		
 	}
 ?>

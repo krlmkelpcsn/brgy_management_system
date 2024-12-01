@@ -1,4 +1,4 @@
-pinaka updated pero dipa nacommit
+
 <?php
     use setasign\Fpdi\Fpdi;
     
@@ -101,7 +101,7 @@ pinaka updated pero dipa nacommit
 				$date_added = $row['date_registered'];
 				$fullname = $row['complaint_name'];
 				$brgy_case = $row['brgy_case'];
-				$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
+				// $accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 				$date_filed = $row['date_filed'];
 				$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 				if ($blotter_status == "Settled") {
@@ -537,32 +537,28 @@ pinaka updated pero dipa nacommit
 														<div class="form-group col-6">
 															<label class="col-form-label"><b>Accusation</b></label>
 															<select class="form-control" id="accusation_id" name="accusation_id">
+																<option value="">select accusation</option>
 																<?php
-																// $accusations = $model->fetchAccusations();
-																// if (!empty($accusations)) {
-																// 	foreach ($accusations as $accusation) {
-																// 		echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
-																// 	}
-																// }
-																// Fetch accusations data
+																
 																$accusations = $model->fetchAccusations();
-																$accusations = [];
-																if (!empty($accusationData)) {
-																	foreach ($accusationData as $accusation) {
-																		$accusations[$accusation['id']] = $accusation['accusation'];
+																
+																if (!empty($accusations)) {
+																	foreach ($accusations as $id => $accusation) {
+																		
+																		$selected = (isset($accusationData) && $accusationData['accusation_id'] == $id) ? 'selected' : '';
+																		echo '<option value="' . $id . '" ' . $selected . '>' . htmlspecialchars($accusation) . '</option>';
 																	}
 																}
-
 																?>
+																
 																<option value="other">Other</option>
 															</select>
-
 														</div>
 
 														<div class="form-group col-12">
 															<div id="otherInputField" style="display: none;">
-																<label for="otherInput">Please specify the accusation</label>
-																<input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter your text">
+																<label for="otherInput">Please specify</label>
+																<input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter new accusation">
 															</div>
 														</div>
 
@@ -626,10 +622,51 @@ pinaka updated pero dipa nacommit
 								<?php
 
 									if (isset($_POST['add-confirm'])) {
-										$model->addBlotters($_POST['resident_id'], 'N/A', $_POST['complaint_name'], $_POST['age'], $_POST['gender'], $_POST['address'], $_POST['contact'], $_POST['time'], $_POST['date'], $_POST['happened'], $_POST['accusation_id'], $_POST['date_filed'], $_POST['narrative2']);
+										$accusation = $_POST['accusation_id'];  
+										
+										if ($accusation === 'other') {
+											$customAccusation = strtoupper(trim($_POST['custom_accusation']));
+											
+											if (!empty($customAccusation)) {
+												
+												$accusation_id = $model->addAccusation($customAccusation);
+												
+												if (!$accusation_id) {
+													echo "<script>alert('Failed to insert custom accusation.');</script>";
+													return;
+												}
+											} else {
+												echo "<script>alert('Please specify the accusation.');</script>";
+												return;
+											}
+										} else {
+											
+											$accusation_id = (int)$accusation; 
+											
+											if (!$model->checkAccusationExists($accusation_id)) {
+												echo "<script>alert('Selected accusation does not exist.');</script>";
+												return;
+											}
+										}
+									
+										$model->addBlotters(
+											$_POST['resident_id'], 'N/A', 
+											$_POST['complaint_name'], 
+											$_POST['age'], 
+											$_POST['gender'], 
+											$_POST['address'], 
+											$_POST['contact'], 
+											$_POST['time'], 
+											$_POST['date'], 
+											$_POST['happened'], 
+											$accusation_id,  
+											$_POST['witness'], 
+											$_POST['date_filed'], 
+											$_POST['narrative2']);
                                         
                                             $complaint_name = strtoupper($_POST['complaint_name']);
-                                            $accusation_id = strtoupper($_POST['accusation_id']);
+                                            // $accussation = strtoupper($_POST['accussation']);
+                                            $witness = strtoupper($_POST['witness']);
                                             $happened = strtoupper($_POST['happened']);
                                             
                                             $complaint_name = strtoupper($_POST['complaint_name']);
@@ -647,7 +684,6 @@ pinaka updated pero dipa nacommit
                             						$email = $rown['email'];
                             					}
                             				}			
-                                            
                                             require 'vendor/autoload.php';
 
 											$mail = new PHPMailer(true);
@@ -714,6 +750,14 @@ pinaka updated pero dipa nacommit
 
 		<script type="text/javascript">
 			$(document).ready(function() {
+				
+				$('#accusation_id').on('change', function() {
+					if ($(this).val() === 'other') {
+						$('#otherInputField').show(); 
+					} else {
+						$('#otherInputField').hide(); 
+					}
+				});
 				$('#table').DataTable();
 			});
 			$(document).ready(function(){

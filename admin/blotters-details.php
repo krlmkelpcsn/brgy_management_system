@@ -102,7 +102,7 @@
 				$date_added = $row['date_registered'];
 				$fullname = $row['complaint_name'];
 				$brgy_case = $row['brgy_case'];
-				$accussation = $row['accussation'];
+				$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 				$date_filed = $row['date_filed'];
 				$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 				if ($blotter_status == "Settled") {
@@ -118,7 +118,7 @@
 					<td>'.$id.'</td>				
 			        <td>'.$first_name.' '.$middle_name.' '.$last_name.'</td>
 			        <td>'.$fullname.'</td>
-			        <td>'.$accussation.'</td>
+			        <td>'.$accusation .'</td>
 			        <td>'.$date_filed.'</td>
 			        <td>'.$blotter_status.'</td>
 		        </tr>';
@@ -357,7 +357,7 @@
 														$date_added = $row['date_registered'];
 														$fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
-														$accussation = $row['accussation'];
+														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {
@@ -381,7 +381,7 @@
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
 												<td><?php echo $fullname; ?></td>
-												<td><?php echo $accussation; ?></td>
+												<td><?php echo $accusation ; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
 											<center><span class="badge badge-<?php echo $blotter_status2; ?>"><a href="" style="font-size: 14px;color: white;" data-toggle="modal" data-target="#status-<?php echo $row['id']; ?>"><?php echo $blotter_status; ?></a></span></center> 
@@ -455,7 +455,7 @@
 															</div>
                                                             <div class="form-group col-12">
 																<label class="col-form-label">Accusation</label>
-																<input class="form-control" type="text" value="<?php echo $accussation; ?>" readonly>
+																<input class="form-control" type="text" value="<?php echo $accusation ; ?>" readonly>
 															</div>
 															<div class="form-group col-12">
 																<label class="col-form-label">Status</label>
@@ -492,7 +492,7 @@
 																	</div>
 																	<div class="form-group col-6">
 																		<label class="col-form-label">Accusation</label>
-																		<input class="form-control" type="text" value="<?php echo $row['accussation']; ?>" readonly>
+																		<input class="form-control" type="text" value="<?php echo $row['accusation ']; ?>" readonly>
 																	</div>
 																	<div class="form-group col-12">
 																		<label class="col-form-label">Respondent</label>

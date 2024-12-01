@@ -1,4 +1,4 @@
-
+pinaka updated pero dipa nacommit
 <?php
     use setasign\Fpdi\Fpdi;
     
@@ -101,8 +101,7 @@
 				$date_added = $row['date_registered'];
 				$fullname = $row['complaint_name'];
 				$brgy_case = $row['brgy_case'];
-				$accussation = $row['accussation'];
-				$witness = $row['witness'];
+				$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 				$date_filed = $row['date_filed'];
 				$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 				if ($blotter_status == "Settled") {
@@ -118,8 +117,7 @@
 					<td>'.$id.'</td>				
 			        <td>'.$first_name.' '.$middle_name.' '.$last_name.'</td>
 			        <td>'.$fullname.'</td>
-			        <td>'.$witness.'</td>
-			        <td>'.$accussation.'</td>
+			        <td>'.$accusation_id.'</td>
 			        <td>'.$date_filed.'</td>
 			        <td>'.$blotter_status.'</td>
 		        </tr>';
@@ -133,7 +131,6 @@
 		$obj_pdf->Output('Blotters.pdf', 'I');  
 	}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -265,8 +262,8 @@
 														$date_added = $row['date_registered'];
 														$fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
-														$witness = $row['witness'];
-														$accusation_id = $row['accusation_id'];
+														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
+														// $accusation_id = $row['accusation_id'];
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {
@@ -292,8 +289,7 @@
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
 												<td><?php echo $fullname; ?></td>
-												<td><?php echo $witness; ?></td>
-												<td><?php echo $accusation_id; ?></td>
+												<td><?php echo $accusation; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
 											<center>
@@ -320,6 +316,7 @@
 												</td>
 											</tr>
 											
+
 											<div id="edit-<?php echo $row['id']; ?>" class="modal fade" role="dialog">
 										<form class="edit-profile m-b30" method="POST" enctype="multipart/form-data">
 											<div class="modal-dialog modal-lg">
@@ -382,12 +379,8 @@
 																<input class="form-control" type="text" value="<?php echo $fullname; ?>" readonly>
 															</div>
                                                             <div class="form-group col-12">
-																<label class="col-form-label">Witness</label>
-																<input class="form-control" type="text" value="<?php echo $witness; ?>" readonly>
-															</div>
-                                                            <div class="form-group col-12">
 																<label class="col-form-label">Accusation</label>
-																<input class="form-control" type="text" value="<?php echo $accussation; ?>" readonly>
+																<input class="form-control" type="text" value="<?php echo $accusation_id; ?>" readonly>
 															</div>
 															<div class="form-group col-12">
 																<label class="col-form-label">Status</label>
@@ -423,12 +416,8 @@
 																		<input class="form-control" type="text" value="<?php echo $row['id']; ?>" readonly>
 																	</div>
 																	<div class="form-group col-6">
-																		<label class="col-form-label">Witness</label>
-																		<input class="form-control" type="text" value="<?php echo $row['witness']; ?>" readonly>
-																	</div>
-																	<div class="form-group col-6">
 																		<label class="col-form-label">Accusation</label>
-																		<input class="form-control" type="text" value="<?php echo $row['accussation']; ?>" readonly>
+																		<input class="form-control" type="text" value="<?php echo $row['accusation']; ?>" readonly>
 																	</div>
 																	<div class="form-group col-12">
 																		<label class="col-form-label">Respondent</label>
@@ -549,12 +538,21 @@
 															<label class="col-form-label"><b>Accusation</b></label>
 															<select class="form-control" id="accusation_id" name="accusation_id">
 																<?php
+																// $accusations = $model->fetchAccusations();
+																// if (!empty($accusations)) {
+																// 	foreach ($accusations as $accusation) {
+																// 		echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
+																// 	}
+																// }
+																// Fetch accusations data
 																$accusations = $model->fetchAccusations();
-																if (!empty($accusations)) {
-																	foreach ($accusations as $accusation) {
-																		echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
+																$accusations = [];
+																if (!empty($accusationData)) {
+																	foreach ($accusationData as $accusation) {
+																		$accusations[$accusation['id']] = $accusation['accusation'];
 																	}
 																}
+
 																?>
 																<option value="other">Other</option>
 															</select>
@@ -628,51 +626,10 @@
 								<?php
 
 									if (isset($_POST['add-confirm'])) {
-										$accusation = $_POST['accusation_id'];  
-										
-										if ($accusation === 'other') {
-											$customAccusation = strtoupper(trim($_POST['custom_accusation']));
-											
-											if (!empty($customAccusation)) {
-												
-												$accusation_id = $model->addAccusation($customAccusation);
-												
-												if (!$accusation_id) {
-													echo "<script>alert('Failed to insert custom accusation.');</script>";
-													return;
-												}
-											} else {
-												echo "<script>alert('Please specify the accusation.');</script>";
-												return;
-											}
-										} else {
-											
-											$accusation_id = (int)$accusation; 
-											
-											if (!$model->checkAccusationExists($accusation_id)) {
-												echo "<script>alert('Selected accusation does not exist.');</script>";
-												return;
-											}
-										}
-									
-										$model->addBlotters(
-											$_POST['resident_id'], 'N/A', 
-											$_POST['complaint_name'], 
-											$_POST['age'], 
-											$_POST['gender'], 
-											$_POST['address'], 
-											$_POST['contact'], 
-											$_POST['time'], 
-											$_POST['date'], 
-											$_POST['happened'], 
-											$accusation_id,  
-											$_POST['witness'], 
-											$_POST['date_filed'], 
-											$_POST['narrative2']);
+										$model->addBlotters($_POST['resident_id'], 'N/A', $_POST['complaint_name'], $_POST['age'], $_POST['gender'], $_POST['address'], $_POST['contact'], $_POST['time'], $_POST['date'], $_POST['happened'], $_POST['accusation_id'], $_POST['date_filed'], $_POST['narrative2']);
                                         
                                             $complaint_name = strtoupper($_POST['complaint_name']);
-                                            // $accussation = strtoupper($_POST['accussation']);
-                                            $witness = strtoupper($_POST['witness']);
+                                            $accusation_id = strtoupper($_POST['accusation_id']);
                                             $happened = strtoupper($_POST['happened']);
                                             
                                             $complaint_name = strtoupper($_POST['complaint_name']);
@@ -711,7 +668,7 @@
 											$mail->Subject = 'Barangay Poblacion Portal - Blotter Notification';
 											$mail->Body = "Good day $first_name!
 											<br><br>
-											Please be informed that <b>$complaint_name</b> has reported you at the barangay for <b>$accussation</b> at <b>$happened</b> this <b>$date - $time.</b>
+											Please be informed that <b>$complaint_name</b> has reported you at the barangay for <b>$accusation_id</b> at <b>$happened</b> this <b>$date - $time.</b>
                                             <br><br>
 											At your service, <br>
 											Barangay Poblacion";
@@ -757,14 +714,6 @@
 
 		<script type="text/javascript">
 			$(document).ready(function() {
-				
-			$('#accusation_id').on('change', function() {
-				if ($(this).val() === 'other') {
-					$('#otherInputField').show(); 
-				} else {
-					$('#otherInputField').hide(); 
-				}
-			});
 				$('#table').DataTable();
 			});
 			$(document).ready(function(){

@@ -266,7 +266,7 @@
 														$fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
 														$witness = $row['witness'];
-														$accussation = $row['accussation'];
+														$accusation_id = $row['accusation_id'];
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {
@@ -293,7 +293,7 @@
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
 												<td><?php echo $fullname; ?></td>
 												<td><?php echo $witness; ?></td>
-												<td><?php echo $accussation; ?></td>
+												<td><?php echo $accusation_id; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
 											<center>
@@ -547,7 +547,7 @@
 														
 														<div class="form-group col-6">
 															<label class="col-form-label"><b>Accusation</b></label>
-															<select class="form-control" id="accussation_id" name="accussation_id">
+															<select class="form-control" id="accusation_id" name="accusation_id">
 																<?php
 																$accusations = $model->fetchAccusations();
 																if (!empty($accusations)) {
@@ -628,7 +628,7 @@
 								<?php
 
 									if (isset($_POST['add-confirm'])) {
-										$accusation = $_POST['accussation_id'];  
+										$accusation = $_POST['accusation_id'];  
 										
 										if ($accusation === 'other') {
 											$customAccusation = strtoupper(trim($_POST['custom_accusation']));
@@ -758,7 +758,7 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				
-			$('#accussation_id').on('change', function() {
+			$('#accusation_id').on('change', function() {
 				if ($(this).val() === 'other') {
 					$('#otherInputField').show(); 
 				} else {

@@ -6,12 +6,12 @@ include('config.php');
 		private $server = "localhost";
 		private $username = "root";
 		private $password = '';
-		private $dbname = "brgy_pobla";
+		private $connname = "brgy_pobla";
 		private $conn;
 
 		public function __construct() {
 			try {
-				$this->conn = new mysqli($this->server, $this->username, $this->password, $this->dbname);	
+				$this->conn = new mysqli($this->server, $this->username, $this->password, $this->connname);	
 			} catch (Exception $e) {
 				echo "Connection failed" . $e->getMessage();
 			}
@@ -145,7 +145,7 @@ include('config.php');
 								include_once('admin/config.php');
 								$_SESSION['ccontact'] =$contact_no;
  								sendSMS($contact_no,"THIS IS YOUR OTP CODE  ". rand_strInt(6, 'x') );
-   					 $query = db_update('org_structure', ['otp' => $otp], ['contact' => $_SESSION['ccontact']]);
+   					 $query = conn_update('org_structure', ['otp' => $otp], ['contact' => $_SESSION['ccontact']]);
      							
 								echo "<script type='text/javascript'>window.location.href='verification';</script>";
     							exit();
@@ -429,17 +429,7 @@ include('config.php');
 
 			return true;
 		}
-
-		public function addBlotters($resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accussation, $date_filed, $narrative) {
-			$query = "INSERT INTO blotters (resident_id, brgy_case, complaint_name, age, gender, address, contact, time, date, happened, accussation, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-			if($stmt = $this->conn->prepare($query)) {
-				$status = 1;
-				$stmt->bind_param('issssssssssssi', $resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accussation, $date_filed, $narrative, $status);
-				$stmt->execute();
-				$stmt->close();
-			}
-		}
+		
 
 		public function searchResident($id_number, $last_name) {
 			$query = "SELECT id, verified FROM residents WHERE id_number = ? AND lname = ?";
@@ -1983,7 +1973,7 @@ include('config.php');
 			}
 		}
 
-		public function addBorrow($equipment_id, $item_borrowed, $type, $name, $date, $status, $date_borrowed, $purpose, $contact, $address) {
+		public function adconnorrow($equipment_id, $item_borrowed, $type, $name, $date, $status, $date_borrowed, $purpose, $contact, $address) {
 			$query = "INSERT INTO borrow (equipment_id, qty, type, name, date, status, date_added, purpose, contact, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			if ($stmt = $this->conn->prepare($query)) {
@@ -2163,7 +2153,71 @@ include('config.php');
 		
 			return $schedules; 
 		}
+
+		public function addBlotters($resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
+			$query = "INSERT INTO blotters (resident_id, brgy_case, complaint_name, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
+			if ($stmt = $this->conn->prepare($query)) {
+				$status = 1;
+				$stmt->bind_param('isssssssssisssi', $resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative, $status);
+				$stmt->execute();
+				$stmt->close();
+			}
+		}
+		
+		public function fetchAccusations() {
+			$data = null;
+		
+			$query = "SELECT id, accusation FROM accusations ORDER BY accusation ASC";
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->execute();
+				$result = $stmt->get_result();
+				$num_of_rows = $stmt->num_rows;
+				while ($row = $result->fetch_assoc()) {
+					$data[] = $row;
+				}
+				$stmt->close();
+			}
+		
+			return $data;
+		}
+		
+		public function checkAccusationExists($accusation_id) {
+			$query = "SELECT COUNT(*) FROM accusations WHERE id = ?";
+			
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('i', $accusation_id);
+				$stmt->execute();
+				$stmt->bind_result($count);
+				$stmt->fetch();
+				$stmt->close();
+				
+				return $count > 0;
+			}
+			
+			return false; 
+		}
+		
+		public function addAccusation($accusation) {
+			$query = "INSERT INTO accusations (accusation) VALUES (?)";
+			
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('s', $accusation);  
+				$stmt->execute();
+				
+				$accusation_id = $this->conn->insert_id;
+				
+				$stmt->close();
+				
+				return $accusation_id;
+			}
+			
+			return false;
+		}
+		
+		public function getLastInsertId() {
+			return $this->conn->lastInsertId();
+		}
 		
 	}
 ?>

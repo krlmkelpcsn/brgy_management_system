@@ -546,28 +546,27 @@
 														</div>
 														
 														<div class="form-group col-6">
-    <label class="col-form-label"><b>Accusation</b></label>
-    <select class="form-control" id="accussation_id" name="accussation_id">
-        <?php
-        // Fetch accusations dynamically
-        $accusations = $model->fetchAccusations();
-        if (!empty($accusations)) {
-            foreach ($accusations as $accusation) {
-                echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
-            }
-        }
-        ?>
-        <option value="other">Other</option>
-    </select>
+															<label class="col-form-label"><b>Accusation</b></label>
+															<select class="form-control" id="accussation_id" name="accussation_id">
+																<?php
+																$accusations = $model->fetchAccusations();
+																if (!empty($accusations)) {
+																	foreach ($accusations as $accusation) {
+																		echo '<option value="' . $accusation['id'] . '">' . htmlspecialchars($accusation['accusation']) . '</option>';
+																	}
+																}
+																?>
+																<option value="other">Other</option>
+															</select>
 
-</div>
+														</div>
 
-<div class="form-group col-12">
-    <div id="otherInputField" style="display: none;">
-        <label for="otherInput">Please specify the accusation</label>
-        <input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter your text">
-    </div>
-</div>
+														<div class="form-group col-12">
+															<div id="otherInputField" style="display: none;">
+																<label for="otherInput">Please specify the accusation</label>
+																<input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter your text">
+															</div>
+														</div>
 
 
 														<div class="form-group col-6">
@@ -629,17 +628,15 @@
 								<?php
 
 									if (isset($_POST['add-confirm'])) {
-										$accusation = $_POST['accussation_id'];  // Get the selected accusation ID
+										$accusation = $_POST['accussation_id'];  
 										
 										if ($accusation === 'other') {
-											// If 'other' was selected, get the custom accusation
 											$customAccusation = strtoupper(trim($_POST['custom_accusation']));
 											
 											if (!empty($customAccusation)) {
-												// Insert the custom accusation and get its ID
+												
 												$accusation_id = $model->addAccusation($customAccusation);
 												
-												// Ensure the accusation was successfully inserted
 												if (!$accusation_id) {
 													echo "<script>alert('Failed to insert custom accusation.');</script>";
 													return;
@@ -649,10 +646,9 @@
 												return;
 											}
 										} else {
-											// Use the selected accusation ID (validate if it's a valid ID)
-											$accusation_id = (int)$accusation; // Ensure it's an integer ID
 											
-											// Optional: Validate if this ID exists in the accusations table
+											$accusation_id = (int)$accusation; 
+											
 											if (!$model->checkAccusationExists($accusation_id)) {
 												echo "<script>alert('Selected accusation does not exist.');</script>";
 												return;
@@ -761,15 +757,14 @@
 
 		<script type="text/javascript">
 			$(document).ready(function() {
-
-        // Toggle "Other" input field
-        $('#accussation_id').on('change', function() {
-            if ($(this).val() === 'other') {
-                $('#otherInputField').show();  // Show the input field
-            } else {
-                $('#otherInputField').hide();  // Hide the input field
-            }
-        });
+				
+			$('#accussation_id').on('change', function() {
+				if ($(this).val() === 'other') {
+					$('#otherInputField').show(); 
+				} else {
+					$('#otherInputField').hide(); 
+				}
+			});
 				$('#table').DataTable();
 			});
 			$(document).ready(function(){

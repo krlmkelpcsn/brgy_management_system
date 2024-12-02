@@ -74,7 +74,7 @@
 								<span class="ttr-label <?php echo ($page == 'pleaders') ? "show2" : ""; ?>">Purok Leaders</span>
 							</a>
 						</li>
-
+													
 
                         <li>
 							<a href="issuance" class="ttr-material-button <?php echo ($page == 'issuance') ? "show2" : ""; ?>">
@@ -83,13 +83,18 @@
 							</a>
 						</li>
 
+						<a href="benefits-management" class="ttr-material-button <?php echo ($page == 'benefits') ? "show2" : ""; ?>">
+							<span class="ttr-icon"><i class="ti-harddrives <?php echo ($page == 'benefits') ? "show2" : ""; ?>"></i></span>
+							<span class="ttr-label <?php echo ($page == 'benefits') ? "show2" : ""; ?>">Benefits Management</span>
+						</a>
+					</li>
 						<li>
 							<a href="content-management" class="ttr-material-button <?php echo ($page == 'content') ? "show2" : ""; ?>">
 								<span class="ttr-icon"><i class="ti-harddrives <?php echo ($page == 'content') ? "show2" : ""; ?>"></i></span>
 								<span class="ttr-label <?php echo ($page == 'content') ? "show2" : ""; ?>">Content Management</span>
 							</a>
-						</li>
-
+							
+							<li>
                         <li class="<?php echo ($page == 'records') ? "show" : ""; ?>">
 							<a href="#" class="ttr-material-button <?php echo ($page == 'records') ? "show2" : ""; ?>">
 								<span class="ttr-icon"><i class="ti-agenda <?php echo ($page == 'records') ? "show2" : ""; ?>"></i></span>
@@ -130,7 +135,7 @@
 							<a href="#" class="ttr-material-button <?php echo ($page == 'inventory') ? "show2" : ""; ?>">
 								<span class="ttr-icon"><i class="ti-list <?php echo ($page == 'inventory') ? "show2" : ""; ?>"></i></span>
 			                	<span class="ttr-label <?php echo ($page == 'inventory') ? "show2" : ""; ?>">Inventory Management</span>
-			                	<span class="ttr-arrow-icon"><i class="fa fa-angle-down <?php echo ($page == 'inventory') ? "show2" : ""; ?>"></i></span>
+			                	<span class="ttr-arrow-icon"><i class="fa fa-angle-down <?php echo ($page == 'inventory') ? "	show2" : ""; ?>"></i></span>
 			                </a>
 			                <ul>
 			                	<li>

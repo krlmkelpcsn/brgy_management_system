@@ -525,6 +525,8 @@ include('config.php');
 			return $data;
 		}
 
+		
+
 		public function content_management(){
 			$data = null;
 			$query = "SELECT * FROM content_management WHERE id = 1";
@@ -831,6 +833,8 @@ include('config.php');
 				$stmt->close();
 			}
 		}
+
+	
 		
 		public function changeBlotterStatus2($status, $blot_id) {
 			$query = "UPDATE blotters SET blotter_status = ? WHERE id = ?";
@@ -1877,12 +1881,6 @@ include('config.php');
 		}
 
 
-
-
-
-
-
-
 		public function displayEquipments($status) {
 			$data = null;
 			$query = "SELECT * FROM equipments WHERE status = ? ORDER BY id DESC";
@@ -2362,5 +2360,120 @@ public function fetchAccusations() {
 		
 			
 		
+
+public function addBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date) {
+	
+	$query = "INSERT INTO benefits (benefit_name, description, type, eligibility_criteria, start_date, end_date, status) 
+						VALUES (?, ?, ?, ?, ?, ?, ?)";
+	if ($stmt = $this->conn->prepare($query)) {
+			$status = 1;
+			$stmt->bind_param('sssssss', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $status);
+			$stmt->execute();
+			$stmt->close();
+}
+}
+
+// public function getAllBenefits() {
+// 	$query = "SELECT * FROM benefits";
+// 	$stmt = $this->conn->prepare($query);
+// 	$stmt->execute();
+// 	$result = $stmt->get_result();
+
+// 	$benefits = [];
+// 	while ($row = $result->fetch_assoc()) {
+// 			$benefits[] = $row;
+// 	}
+
+// 	return $benefits;
+// }
+
+public function getAllBenefits($benefit_status) {
+	
+	$query = "SELECT * FROM benefits WHERE status = ?";
+	$stmt = $this->conn->prepare($query);
+	
+	if (!$stmt) {
+			error_log("Error preparing statement: " . $this->conn->error);
+			return null; 
 	}
+
+	$stmt->bind_param('i', $benefit_status);
+	$stmt->execute();
+	$result = $stmt->get_result();
+
+	$benefits = [];
+	while ($row = $result->fetch_assoc()) {
+			$benefits[] = $row;
+	}
+
+	$stmt->close();
+	return $benefits;
+}
+
+public function editBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id)
+{
+    $query = "UPDATE benefits SET benefit_name = ?, description = ?, type = ?, eligibility_criteria = ?, start_date = ?, end_date = ? WHERE id = ?";
+
+    if ($stmt = $this->conn->prepare($query)) {
+        $stmt->bind_param('ssssssi', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        } else {
+            error_log("Error executing statement: " . $stmt->error);
+            $stmt->close();
+            return false;
+        }
+    } else {
+        error_log("Error preparing statement: " . $this->conn->error);
+        return false;
+    }
+}
+
+public function archiveBenefit($status, $id)
+{
+    $query = "UPDATE benefits SET status = ? WHERE id = ?";
+
+    if ($stmt = $this->conn->prepare($query)) {
+        $stmt->bind_param('ii', $status, $id);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true; 
+        } else {
+            error_log("Error executing statement: " . $stmt->error);
+            $stmt->close();
+            return false; 
+        }
+    } else {
+        error_log("Error preparing statement: " . $this->conn->error);
+        return false; 
+    }
+}
+
+public function changeBenefitStatus2($status, $id) {
+	$query = "UPDATE benefits SET benefit_status = ? WHERE id = ?";
+
+	if ($stmt = $this->conn->prepare($query)) {
+		
+			$stmt->bind_param('si', $status, $id);
+			if ($stmt->execute()) {
+			
+			} else {
+					echo "Error updating status.";
+			}
+			
+			$stmt->close();
+	} else {
+			echo "Error: Could not prepare statement.";
+	}
+}
+
+}
+
+
+	
 ?>
+
+

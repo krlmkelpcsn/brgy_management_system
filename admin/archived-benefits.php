@@ -168,32 +168,32 @@
                     <input type="hidden" name="decline_hidden" value="<?php echo htmlspecialchars($row['id']); ?>">
                     <div class="row">
                         <div class="form-group col-6">
-                            <label class="col-form-label">Benefit ID</label>
+                            <label class="col-form-label"><b>Benefit ID</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['id']); ?>" readonly>
                         </div>
                         <div class="form-group col-6">
-                            <label class="col-form-label">Benefit Name</label>
+                            <label class="col-form-label"><b>Benefit Name</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['benefit_name']); ?>" readonly>
                         </div> 
 												 <div class="form-group col-6">
-                            <label class="col-form-label">Benefit Type</label>
+                            <label class="col-form-label"><b>Benefit Type</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['type']); ?>" readonly>
                         </div>
-                        <div class="form-group col-12">
-                            <label class="col-form-label">Description</label>
+                        <div class="form-group col-6">
+                            <label class="col-form-label"><b>Description</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['description']); ?>" readonly>
                         </div>
 												<div class="form-group col-6">
-														<label class="col-form-label">Eligibility</label>
+														<label class="col-form-label"><b>Eligibility</b></label>
 														<input class="form-control" type="text" value="<?php echo htmlspecialchars($row['eligibility_criteria']); ?>" readonly>
 												</div>
                       
                         <div class="form-group col-6">
-                            <label class="col-form-label">Start Date</label>
+                            <label class="col-form-label"><b>Start Date</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['start_date']); ?>" readonly>
                         </div>
                         <div class="form-group col-6">
-                            <label class="col-form-label">End Date</label>
+                            <label class="col-form-label"><b>End Date</b></label>
                             <input class="form-control" type="text" value="<?php echo htmlspecialchars($row['end_date']); ?>" readonly>
                         </div>
                     </div>

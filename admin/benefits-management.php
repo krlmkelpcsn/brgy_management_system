@@ -314,7 +314,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn red radius-xl outline" name="archive" onclick="return confirm('Are you sure you want to archive this benefit? This action cannot be undone.')">Archive Benefits</button>
+                    <button type="submit" class="btn red radius-xl outline" name="archive" onclick="return confirm('Are you sure you want to archive this benefit? ')">Archive Benefits</button>
                     <button type="button" class="btn red outline radius-xl" data-dismiss="modal">Close</button>
                 </div>
             </div>

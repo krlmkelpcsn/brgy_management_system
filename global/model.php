@@ -2124,12 +2124,12 @@ include('config.php');
 			return $schedules; 
 		}
 
-		public function addBlotters($resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
-			$query = "INSERT INTO blotters (resident_id, brgy_case, complaint_name, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public function addBlotters($resident_id, $brgy_case, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
+			$query = "INSERT INTO blotters (resident_id, brgy_case, resident_complainant_id, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 			if ($stmt = $this->conn->prepare($query)) {
 				$status = 1;
-				$stmt->bind_param('isssssssssisssi', $resident_id, $brgy_case, $complaint_name, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative, $status);
+				$stmt->bind_param('isisssssssisssi', $resident_id, $brgy_case, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative, $status);
 				$stmt->execute();
 				$stmt->close();
 			}
@@ -2277,8 +2277,90 @@ public function fetchAccusations() {
 			}
 			return $data;
 		}
+
 		
 		
+		public function addNonResidentComplainant($non_resident_complainant) {
+			$query = "INSERT INTO external_complainants (non_resident_complainant) VALUES (?)";
+		// 	$result = $this->conn->query($query);
+		
+		// 	if ($result) {
+		// 		return $this->conn->insert_id; // Return the ID of the newly inserted record
+		// 	}
+		
+		// 	return false; // Return false if the operation fails
+		// }	
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('s', $non_resident_complainant);  
+				$stmt->execute();
+				
+				$resident_complainant_id = $this->conn->insert_id;
+				
+				$stmt->close();
+				
+				return $accusation_id;
+			}
+			
+			return false;
+		}
+		
+		// public function checkResidentComplainantExists($id) {
+		// 	$query = "SELECT COUNT(*) FROM residents WHERE id = " . (int)$id;
+		// 	$result = $this->conn->query($query);
+		
+		// 	if ($result) {
+		// 		$row = $result->fetch_row();
+		// 		return $row[0] > 0; // Return true if the resident exists
+		// 	}
+		
+		// 	return false; // Return false if the query fails
+		// }
+		public function checkResidentComplainantExists($id) {
+			$query = "SELECT COUNT(*) FROM external_complainants WHERE id = ?";
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('i', $id);
+				$stmt->execute();
+				$stmt->bind_result($count);
+				$stmt->fetch();
+				$stmt->close();
+				return $count > 0;
+			}
+			return false;
+		}
+
+		
+		// public function checkResidentComplainantExists($id) {
+		// 	$query = "SELECT COUNT(*) FROM external_complainants WHERE id = ?";
+
+		// 	if ($stmt = $this->conn->prepare($query)) {
+		// 		$stmt->bind_param('i', $resident_complainant_id);
+		// 		$stmt->execute();
+		// 		$stmt->bind_result($count);
+		// 		$stmt->fetch();
+		// 		$stmt->close();
+		// 		return $count > 0;
+		// 	}
+		// 	return false;
+		// }
+
+
+		// public function checkAccusationExists($accusation_id) {
+		// 	$query = "SELECT COUNT(*) FROM accusations WHERE id = ?";
+			
+		// 	if ($stmt = $this->conn->prepare($query)) {
+		// 		$stmt->bind_param('i', $accusation_id);
+		// 		$stmt->execute();
+		// 		$stmt->bind_result($count);
+		// 		$stmt->fetch();
+		// 		$stmt->close();
+				
+		// 		return $count > 0;
+		// 	}
+			
+		// 	return false; 
+		// }
+		
+			
 		
 	}
 ?>

@@ -260,7 +260,8 @@
 														$contact = $row['contact'];
 														$address = $row['address'];
 														$date_added = $row['date_registered'];
-														$fullname = $row['complaint_name'];
+														$resident_complainant_id = $row['resident_complainant_id'];
+														// $fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
 														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 														// $accusation_id = $row['accusation_id'];
@@ -356,10 +357,9 @@
 											</div>
 										</form>
 									</div>
+									
 
-
-											
-											<div id="status-<?php echo $row['id']; ?>" class="modal fade" role="dialog">
+									<div id="status-<?php echo $row['id']; ?>" class="modal fade" role="dialog">
 										<form class="edit-profile m-b30" method="POST" enctype="multipart/form-data">
 											<div class="modal-dialog modal-lg">
 												<div class="modal-content">
@@ -535,7 +535,7 @@
 														</div>
 														
 														<div class="form-group col-6">
-															<label class="col-form-label"><b>Accusation</b></label>
+															<label class="col-form-label"><b>Accusation </b></label>
 															<select class="form-control" id="accusation_id" name="accusation_id">
 																<option value="">select accusation</option>
 																<?php
@@ -561,11 +561,56 @@
 																<input type="text" class="form-control" id="otherInput" name="custom_accusation" placeholder="Enter new accusation">
 															</div>
 														</div>
+														
+														<div class="form-group col-12">
+															<label class="col-form-label"><b>Complainant’s Full Name </b><small>(Select others if not a resident)</small></label>
+															<!-- <input class="form-control" type="text" name="complaint_name" required> -->
+															 
+															<!-- <select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
+																<option value="">select</option>
+																<option value="otherComplainant">others (if not a resident)</option> -->
+																<select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
+    <option value="">Select</option>
+    <option value="otherComplainant">Others (if not a resident)</option>
 
+														        <?php
+														        
+														            // $complainants = $model->fetchResidents();
+														            
+														            // if (!empty($complainants)) {
+														            //     foreach ($complainants as $complainant) {
+																	// 		$selected = (isset($complainantData) && $complainantData['resident_complainant_id'] == $id) ? 'selected' : '';
+														            //         echo '<option value="'.$row['id'].'">'.$row['lname'].', '.$row['fname'].' '.$row['mname'].'</option>';
+														            //     }
+														            // }
+																	$complainants = $model->fetchResidents();
 
-														<div class="form-group col-6">
-															<label class="col-form-label"><b>Complainant’s Full Name</b></label>
-															<input class="form-control" type="text" name="complaint_name" required>
+																	if (!empty($complainants)) {
+																		foreach ($complainants as $complainant) {
+																			// Ensure data is properly escaped for security
+																			$id = htmlspecialchars($complainant['id'], ENT_QUOTES, 'UTF-8');
+																			$lname = htmlspecialchars($complainant['lname'], ENT_QUOTES, 'UTF-8');
+																			$fname = htmlspecialchars($complainant['fname'], ENT_QUOTES, 'UTF-8');
+																			$mname = htmlspecialchars($complainant['mname'], ENT_QUOTES, 'UTF-8');
+																
+																			// Check if the option should be selected
+																			$selected = (isset($complainantData) && $complainantData['resident_complainant_id'] == $id) ? 'selected' : '';
+																
+																			// Generate the option element
+																			echo "<option value=\"$id\" $selected>$lname, $fname $mname</option>";
+																		}
+																	}
+														        
+														        ?>
+																
+</select>
+															<!-- </select> -->
+														</div>
+														<div class="form-group col-12">
+															<div id="otherInputFieldComplainant" style="display: none;">
+																<label for="otherInput">Please specify</label>
+																<input type="text" class="form-control" id="otherInput" name="custom_complainant" placeholder="Enter external complainant">
+															</div>
 														</div>
 														<div class="form-group col-6">
 															<label class="col-form-label"><b>Complainant’s Address</b></label>
@@ -648,10 +693,42 @@
 												return;
 											}
 										}
-									
+										
+										$complainant = $_POST['resident_complainant_id'];  
+
+										if ($complainant === 'otherComplainant') {
+											// Handle case for non-resident complainant
+											$customComplainant = strtoupper(trim($_POST['custom_complainant']));
+										
+											if (!empty($customComplainant)) {
+												// Attempt to add non-resident complainant
+												$resident_complainant_id = $model->addNonResidentComplainant($customComplainant);
+										
+												if (!$resident_complainant_id) {
+													echo "<script>alert('Failed to add non-resident complainant.');</script>";
+													return;
+												}
+											} else {
+												echo "<script>alert('Please specify the non-resident complainant.');</script>";
+												return;
+											}
+										} else {
+											// Convert to integer to ensure valid input
+											$resident_complainant_id = (int)$complainant;
+										
+											// Check if the selected resident complainant exists
+											if (!$model->checkResidentComplainantExists($resident_complainant_id)) {
+												echo "<script>alert('The selected resident complainant does not exist.');</script>";
+												return;
+											}
+										}
+										
+										
 										$model->addBlotters(
 											$_POST['resident_id'], 'N/A', 
-											$_POST['complaint_name'], 
+											// $_POST['resident_complainant_id'], 'N/A', 
+											$resident_complainant_id,  
+											// $_POST['complaint_name'], 
 											$_POST['age'], 
 											$_POST['gender'], 
 											$_POST['address'], 
@@ -664,18 +741,19 @@
 											$_POST['date_filed'], 
 											$_POST['narrative2']);
                                         
-                                            $complaint_name = strtoupper($_POST['complaint_name']);
+                                            // $complaint_name = strtoupper($_POST['complaint_name']);
                                             // $accussation = strtoupper($_POST['accussation']);
                                             $witness = strtoupper($_POST['witness']);
                                             $happened = strtoupper($_POST['happened']);
                                             
-                                            $complaint_name = strtoupper($_POST['complaint_name']);
-                                            $complaint_name = strtoupper($_POST['complaint_name']);
+                                            // $complaint_name = strtoupper($_POST['complaint_name']);
+                                            // $complaint_name = strtoupper($_POST['complaint_name']);
                                             
                                             $date = date('M. d, Y', strtotime($_POST['date']));
 											$time = date('g:i A', strtotime($_POST['time']));
 
                                             $resident_id = $_POST['resident_id'];
+                                            // $resident_complainant_id = $_POST['resident_complainant_id'];
 														
 											$rowsn = $model->displayResidentsProfile($resident_id);
                             				if (!empty($rowsn)) {
@@ -684,6 +762,14 @@
                             						$email = $rown['email'];
                             					}
                             				}			
+														
+											// $rowsnn = $model->displayResidentsProfile($resident_complainant_id);
+                            				// if (!empty($rowsnn)) {
+                            				// 	foreach ($rowsnn as $rown) {
+                            				// 	    $first_name = $rown['fname'];
+                            				// 		$email = $rown['email'];
+                            				// 	}
+                            				// }			
                                             require 'vendor/autoload.php';
 
 											$mail = new PHPMailer(true);
@@ -704,7 +790,7 @@
 											$mail->Subject = 'Barangay Poblacion Portal - Blotter Notification';
 											$mail->Body = "Good day $first_name!
 											<br><br>
-											Please be informed that <b>$complaint_name</b> has reported you at the barangay for <b>$accusation_id</b> at <b>$happened</b> this <b>$date - $time.</b>
+											Please be informed that <b>COMPLAINANT NAME HERE</b> has reported you at the barangay for <b>$accusation_id</b> at <b>$happened</b> this <b>$date - $time.</b>
                                             <br><br>
 											At your service, <br>
 											Barangay Poblacion";
@@ -756,6 +842,13 @@
 						$('#otherInputField').show(); 
 					} else {
 						$('#otherInputField').hide(); 
+					}
+				});
+				$('#resident_complainant_id').on('change', function() {
+					if ($(this).val() === 'otherComplainant') {
+						$('#otherInputFieldComplainant').show(); 
+					} else {
+						$('#otherInputFieldComplainant').hide(); 
 					}
 				});
 				$('#table').DataTable();

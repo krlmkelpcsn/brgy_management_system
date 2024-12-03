@@ -6,7 +6,7 @@ include('config.php');
 		private $server = "localhost";
 		private $username = "root";
 		private $password = '';
-		private $connname = "brgy_pobla";
+		private $connname = "brgy_pobla1";
 		private $conn;
 
 		public function __construct() {
@@ -2122,62 +2122,33 @@ include('config.php');
 			return $schedules; 
 		}
 
-		public function addBlotters($resident_id, $brgy_case, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
-			$query = "INSERT INTO blotters (resident_id, brgy_case, resident_complainant_id, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public function addBlotters($resident_id, $brgy_case, $external_complainant_name, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
+			$query = "INSERT INTO blotters (resident_id, brgy_case, external_complainant_name, resident_complainant_id, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 			if ($stmt = $this->conn->prepare($query)) {
 				$status = 1;
-				$stmt->bind_param('isisssssssisssi', $resident_id, $brgy_case, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative, $status);
+				$stmt->bind_param('ississsssssisssi', $resident_id, $brgy_case, $external_complainant_name, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative, $status);
 				$stmt->execute();
 				$stmt->close();
 			}
 		}
 		
-		// public function fetchAccusations() {
-		// 	$data = null;
-		
-		// 	$query = "SELECT id, accusation FROM accusations ORDER BY accusation ASC";
-		// 	if ($stmt = $this->conn->prepare($query)) {
-		// 		$stmt->execute();
-		// 		$result = $stmt->get_result();
-		// 		$num_of_rows = $stmt->num_rows;
-		// 		while ($row = $result->fetch_assoc()) {
-		// 			$data[] = $row;
-		// 		}
-		// 		$stmt->close();
-		// 	}
-		
-		// 	return $data;
-		// }
-	
-		// Fetch all accusations as an associative array
-// function fetchAccusations() {
-//     $sql = "SELECT id, accusation FROM accusations";
-//     $stmt = $this->pdo->query($sql);
-//     $accusations = [];
-//     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-//         $accusations[$row['id']] = $row['accusation'];
-//     }
-//     return $accusations;
-// }
-public function fetchAccusations() {
-    $sql = "SELECT id, accusation FROM accusations";
-    // Use MySQLi to prepare the query
-    $result = $this->conn->query($sql);
+		public function fetchAccusations() {
+			$sql = "SELECT id, accusation FROM accusations";
+			$result = $this->conn->query($sql);
+			
+			if (!$result) {
+				die('Query failed: ' . $this->conn->error);
+			}
 
-    // Check if the query was successful
-    if (!$result) {
-        die('Query failed: ' . $this->conn->error);
-    }
+			$accusations = [];
+			
+			while ($row = $result->fetch_assoc()) {
+				$accusations[$row['id']] = $row['accusation'];
+			}
 
-    $accusations = [];
-    // Fetch all rows from the result set
-    while ($row = $result->fetch_assoc()) {
-        $accusations[$row['id']] = $row['accusation'];
-    }
-
-    return $accusations;
-}
+			return $accusations;
+		}
 
 		
 		
@@ -2218,22 +2189,6 @@ public function fetchAccusations() {
 			return $this->conn->lastInsertId();
 		}
 		
-		// public function displayBlotters($blot_status) {
-		// 	$data = null;
-		// 	$query = "SELECT a.*, b.*, b.id as blotter_id FROM residents AS a INNER JOIN blotters AS b ON a.id = b.resident_id WHERE b.status = ?";
-		// 	if ($stmt = $this->conn->prepare($query)) {
-		// 		$stmt->bind_param('i', $blot_status);
-		// 		$stmt->execute();
-		// 		$result = $stmt->get_result();
-		// 		$num_of_rows = $stmt->num_rows;
-		// 		while ($row = $result->fetch_assoc()) {
-		// 			$data[] = $row;
-		// 		}
-		// 		$stmt->close();
-		// 	}
-		// 	return $data;
-		// }
-
 		public function displayBlotters($blot_status) {
 			$data = null;
 			$query = "
@@ -2277,199 +2232,102 @@ public function fetchAccusations() {
 		}
 
 		
-		
-		public function addNonResidentComplainant($non_resident_complainant) {
-			$query = "INSERT INTO external_complainants (non_resident_complainant) VALUES (?)";
-		// 	$result = $this->conn->query($query);
-		
-		// 	if ($result) {
-		// 		return $this->conn->insert_id; // Return the ID of the newly inserted record
-		// 	}
-		
-		// 	return false; // Return false if the operation fails
-		// }	
-			if ($stmt = $this->conn->prepare($query)) {
-				$stmt->bind_param('s', $non_resident_complainant);  
-				$stmt->execute();
-				
-				$resident_complainant_id = $this->conn->insert_id;
-				
-				$stmt->close();
-				
-				return $accusation_id;
-			}
+		public function addBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date) {
 			
-			return false;
-		}
-		
-		// public function checkResidentComplainantExists($id) {
-		// 	$query = "SELECT COUNT(*) FROM residents WHERE id = " . (int)$id;
-		// 	$result = $this->conn->query($query);
-		
-		// 	if ($result) {
-		// 		$row = $result->fetch_row();
-		// 		return $row[0] > 0; // Return true if the resident exists
-		// 	}
-		
-		// 	return false; // Return false if the query fails
-		// }
-		public function checkResidentComplainantExists($id) {
-			$query = "SELECT COUNT(*) FROM external_complainants WHERE id = ?";
+			$query = "INSERT INTO benefits (benefit_name, description, type, eligibility_criteria, start_date, end_date, status) 
+								VALUES (?, ?, ?, ?, ?, ?, ?)";
 			if ($stmt = $this->conn->prepare($query)) {
-				$stmt->bind_param('i', $id);
-				$stmt->execute();
-				$stmt->bind_result($count);
-				$stmt->fetch();
-				$stmt->close();
-				return $count > 0;
-			}
-			return false;
+					$status = 1;
+					$stmt->bind_param('sssssss', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $status);
+					$stmt->execute();
+					$stmt->close();
+				}
 		}
 
-		
-		// public function checkResidentComplainantExists($id) {
-		// 	$query = "SELECT COUNT(*) FROM external_complainants WHERE id = ?";
 
-		// 	if ($stmt = $this->conn->prepare($query)) {
-		// 		$stmt->bind_param('i', $resident_complainant_id);
-		// 		$stmt->execute();
-		// 		$stmt->bind_result($count);
-		// 		$stmt->fetch();
-		// 		$stmt->close();
-		// 		return $count > 0;
-		// 	}
-		// 	return false;
-		// }
-
-
-		// public function checkAccusationExists($accusation_id) {
-		// 	$query = "SELECT COUNT(*) FROM accusations WHERE id = ?";
+		public function getAllBenefits($benefit_status) {
 			
-		// 	if ($stmt = $this->conn->prepare($query)) {
-		// 		$stmt->bind_param('i', $accusation_id);
-		// 		$stmt->execute();
-		// 		$stmt->bind_result($count);
-		// 		$stmt->fetch();
-		// 		$stmt->close();
-				
-		// 		return $count > 0;
-		// 	}
+			$query = "SELECT * FROM benefits WHERE status = ?";
+			$stmt = $this->conn->prepare($query);
 			
-		// 	return false; 
-		// }
-		
-			
-		
+			if (!$stmt) {
+					error_log("Error preparing statement: " . $this->conn->error);
+					return null; 
+			}
 
-public function addBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date) {
-	
-	$query = "INSERT INTO benefits (benefit_name, description, type, eligibility_criteria, start_date, end_date, status) 
-						VALUES (?, ?, ?, ?, ?, ?, ?)";
-	if ($stmt = $this->conn->prepare($query)) {
-			$status = 1;
-			$stmt->bind_param('sssssss', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $status);
+			$stmt->bind_param('i', $benefit_status);
 			$stmt->execute();
-			$stmt->close();
-}
-}
+			$result = $stmt->get_result();
 
-// public function getAllBenefits() {
-// 	$query = "SELECT * FROM benefits";
-// 	$stmt = $this->conn->prepare($query);
-// 	$stmt->execute();
-// 	$result = $stmt->get_result();
-
-// 	$benefits = [];
-// 	while ($row = $result->fetch_assoc()) {
-// 			$benefits[] = $row;
-// 	}
-
-// 	return $benefits;
-// }
-
-public function getAllBenefits($benefit_status) {
-	
-	$query = "SELECT * FROM benefits WHERE status = ?";
-	$stmt = $this->conn->prepare($query);
-	
-	if (!$stmt) {
-			error_log("Error preparing statement: " . $this->conn->error);
-			return null; 
-	}
-
-	$stmt->bind_param('i', $benefit_status);
-	$stmt->execute();
-	$result = $stmt->get_result();
-
-	$benefits = [];
-	while ($row = $result->fetch_assoc()) {
-			$benefits[] = $row;
-	}
-
-	$stmt->close();
-	return $benefits;
-}
-
-public function editBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id)
-{
-    $query = "UPDATE benefits SET benefit_name = ?, description = ?, type = ?, eligibility_criteria = ?, start_date = ?, end_date = ? WHERE id = ?";
-
-    if ($stmt = $this->conn->prepare($query)) {
-        $stmt->bind_param('ssssssi', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id);
-
-        if ($stmt->execute()) {
-            $stmt->close();
-            return true;
-        } else {
-            error_log("Error executing statement: " . $stmt->error);
-            $stmt->close();
-            return false;
-        }
-    } else {
-        error_log("Error preparing statement: " . $this->conn->error);
-        return false;
-    }
-}
-
-public function archiveBenefit($status, $id)
-{
-    $query = "UPDATE benefits SET status = ? WHERE id = ?";
-
-    if ($stmt = $this->conn->prepare($query)) {
-        $stmt->bind_param('ii', $status, $id);
-
-        if ($stmt->execute()) {
-            $stmt->close();
-            return true; 
-        } else {
-            error_log("Error executing statement: " . $stmt->error);
-            $stmt->close();
-            return false; 
-        }
-    } else {
-        error_log("Error preparing statement: " . $this->conn->error);
-        return false; 
-    }
-}
-
-public function changeBenefitStatus2($status, $id) {
-	$query = "UPDATE benefits SET benefit_status = ? WHERE id = ?";
-
-	if ($stmt = $this->conn->prepare($query)) {
-		
-			$stmt->bind_param('si', $status, $id);
-			if ($stmt->execute()) {
-			
-			} else {
-					echo "Error updating status.";
+			$benefits = [];
+			while ($row = $result->fetch_assoc()) {
+					$benefits[] = $row;
 			}
-			
-			$stmt->close();
-	} else {
-			echo "Error: Could not prepare statement.";
-	}
-}
 
+			$stmt->close();
+			return $benefits;
+		}
+
+		public function editBenefits($benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id)
+		{
+			$query = "UPDATE benefits SET benefit_name = ?, description = ?, type = ?, eligibility_criteria = ?, start_date = ?, end_date = ? WHERE id = ?";
+
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('ssssssi', $benefit_name, $description, $type, $eligibility_criteria, $start_date, $end_date, $id);
+
+				if ($stmt->execute()) {
+					$stmt->close();
+					return true;
+				} else {
+					error_log("Error executing statement: " . $stmt->error);
+					$stmt->close();
+					return false;
+				}
+			} else {
+				error_log("Error preparing statement: " . $this->conn->error);
+				return false;
+			}
+		}
+
+		public function archiveBenefit($status, $id)
+		{
+			$query = "UPDATE benefits SET status = ? WHERE id = ?";
+
+			if ($stmt = $this->conn->prepare($query)) {
+				$stmt->bind_param('ii', $status, $id);
+
+				if ($stmt->execute()) {
+					$stmt->close();
+					return true; 
+				} else {
+					error_log("Error executing statement: " . $stmt->error);
+					$stmt->close();
+					return false; 
+				}
+			} else {
+				error_log("Error preparing statement: " . $this->conn->error);
+				return false; 
+			}
+		}
+
+		public function changeBenefitStatus2($status, $id) {
+			$query = "UPDATE benefits SET benefit_status = ? WHERE id = ?";
+
+			if ($stmt = $this->conn->prepare($query)) {
+				
+					$stmt->bind_param('si', $status, $id);
+					if ($stmt->execute()) {
+					
+					} else {
+							echo "Error updating status.";
+					}
+					
+					$stmt->close();
+			} else {
+					echo "Error: Could not prepare statement.";
+			}
+		}
+		
 }
 
 

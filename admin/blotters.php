@@ -261,10 +261,9 @@
 														$address = $row['address'];
 														$date_added = $row['date_registered'];
 														$resident_complainant_id = $row['resident_complainant_id'];
-														// $fullname = $row['complaint_name'];
+														$fullname = $row['complaint_name'];
 														$brgy_case = $row['brgy_case'];
 														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
-														// $accusation_id = $row['accusation_id'];
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {

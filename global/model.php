@@ -6,7 +6,7 @@ include('config.php');
 		private $server = "localhost";
 		private $username = "root";
 		private $password = '';
-		private $connname = "brgy_pobla1";
+		private $connname = "brgy_pobla";
 		private $conn;
 
 		public function __construct() {

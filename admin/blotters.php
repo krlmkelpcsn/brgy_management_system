@@ -564,52 +564,30 @@
 														
 														<div class="form-group col-12">
 															<label class="col-form-label"><b>Complainant’s Full Name </b><small>(Select others if not a resident)</small></label>
-															<!-- <input class="form-control" type="text" name="complaint_name" required> -->
-															 
-															<!-- <select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
-																<option value="">select</option>
-																<option value="otherComplainant">others (if not a resident)</option> -->
-																<select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
+															<select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
     <option value="">Select</option>
+    <?php
+	
+		$rows = $model->fetchResidents();
+		
+		if (!empty($rows)) {
+			foreach ($rows as $row) {
+				echo '<option value="'.$row['id'].'">'.$row['lname'].', '.$row['fname'].' '.$row['mname'].'</option>';
+			}
+		}
+		
+    ?>
     <option value="otherComplainant">Others (if not a resident)</option>
-
-														        <?php
-														        
-														            // $complainants = $model->fetchResidents();
-														            
-														            // if (!empty($complainants)) {
-														            //     foreach ($complainants as $complainant) {
-																	// 		$selected = (isset($complainantData) && $complainantData['resident_complainant_id'] == $id) ? 'selected' : '';
-														            //         echo '<option value="'.$row['id'].'">'.$row['lname'].', '.$row['fname'].' '.$row['mname'].'</option>';
-														            //     }
-														            // }
-																	$complainants = $model->fetchResidents();
-
-																	if (!empty($complainants)) {
-																		foreach ($complainants as $complainant) {
-																			// Ensure data is properly escaped for security
-																			$id = htmlspecialchars($complainant['id'], ENT_QUOTES, 'UTF-8');
-																			$lname = htmlspecialchars($complainant['lname'], ENT_QUOTES, 'UTF-8');
-																			$fname = htmlspecialchars($complainant['fname'], ENT_QUOTES, 'UTF-8');
-																			$mname = htmlspecialchars($complainant['mname'], ENT_QUOTES, 'UTF-8');
-																
-																			// Check if the option should be selected
-																			$selected = (isset($complainantData) && $complainantData['resident_complainant_id'] == $id) ? 'selected' : '';
-																
-																			// Generate the option element
-																			echo "<option value=\"$id\" $selected>$lname, $fname $mname</option>";
-																		}
-																	}
-														        
-														        ?>
-																
 </select>
-															<!-- </select> -->
+
+
+
+
 														</div>
 														<div class="form-group col-12">
 															<div id="otherInputFieldComplainant" style="display: none;">
 																<label for="otherInput">Please specify</label>
-																<input type="text" class="form-control" id="otherInput" name="custom_complainant" placeholder="Enter external complainant">
+																<input type="text" class="form-control" id="otherInput" name="external_complaint_name" placeholder="Enter external complainant">
 															</div>
 														</div>
 														<div class="form-group col-6">
@@ -694,41 +672,20 @@
 											}
 										}
 										
-										$complainant = $_POST['resident_complainant_id'];  
 
-										if ($complainant === 'otherComplainant') {
-											// Handle case for non-resident complainant
-											$customComplainant = strtoupper(trim($_POST['custom_complainant']));
-										
-											if (!empty($customComplainant)) {
-												// Attempt to add non-resident complainant
-												$resident_complainant_id = $model->addNonResidentComplainant($customComplainant);
-										
-												if (!$resident_complainant_id) {
-													echo "<script>alert('Failed to add non-resident complainant.');</script>";
-													return;
-												}
-											} else {
-												echo "<script>alert('Please specify the non-resident complainant.');</script>";
-												return;
-											}
+										// Check if 'resident_complainant_id' is set, if 'other' is selected, set it to null
+										if (isset($_POST['resident_complainant_id']) && $_POST['resident_complainant_id'] !== 'otherComplainant') {
+											$resident_complainant_id = $_POST['resident_complainant_id'];
 										} else {
-											// Convert to integer to ensure valid input
-											$resident_complainant_id = (int)$complainant;
-										
-											// Check if the selected resident complainant exists
-											if (!$model->checkResidentComplainantExists($resident_complainant_id)) {
-												echo "<script>alert('The selected resident complainant does not exist.');</script>";
-												return;
-											}
+											$resident_complainant_id = null; // Set to null if "Others" or no selection is made
 										}
+
 										
 										
 										$model->addBlotters(
 											$_POST['resident_id'], 'N/A', 
-											// $_POST['resident_complainant_id'], 'N/A', 
+											$_POST['external_complaint_name'], 
 											$resident_complainant_id,  
-											// $_POST['complaint_name'], 
 											$_POST['age'], 
 											$_POST['gender'], 
 											$_POST['address'], 
@@ -741,7 +698,7 @@
 											$_POST['date_filed'], 
 											$_POST['narrative2']);
                                         
-                                            // $complaint_name = strtoupper($_POST['complaint_name']);
+                                            $external_complaint_name = strtoupper($_POST['external_complaint_name']);
                                             // $accussation = strtoupper($_POST['accussation']);
                                             $witness = strtoupper($_POST['witness']);
                                             $happened = strtoupper($_POST['happened']);

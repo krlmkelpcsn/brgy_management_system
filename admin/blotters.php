@@ -565,24 +565,21 @@
 														<div class="form-group col-12">
 															<label class="col-form-label"><b>Complainant’s Full Name </b><small>(Select others if not a resident)</small></label>
 															<select class="form-control" id="resident_complainant_id" name="resident_complainant_id">
-    <option value="">Select</option>
-    <?php
-	
-		$rows = $model->fetchResidents();
-		
-		if (!empty($rows)) {
-			foreach ($rows as $row) {
-				echo '<option value="'.$row['id'].'">'.$row['lname'].', '.$row['fname'].' '.$row['mname'].'</option>';
-			}
-		}
-		
-    ?>
-    <option value="otherComplainant">Others (if not a resident)</option>
-</select>
-
-
-
-
+																<option value="">Select</option>
+																<?php
+																
+																	$rows = $model->fetchResidents();
+																	
+																	if (!empty($rows)) {
+																		foreach ($rows as $row) {
+																			echo '<option value="'.$row['id'].'">'.$row['lname'].', '.$row['fname'].' '.$row['mname'].'</option>';
+																		}
+																	}
+																	
+																?>
+																<option value="otherComplainant">Others (if not a resident)</option>
+															</select>
+															
 														</div>
 														<div class="form-group col-12">
 															<div id="otherInputFieldComplainant" style="display: none;">
@@ -672,15 +669,11 @@
 											}
 										}
 										
-
-										// Check if 'resident_complainant_id' is set, if 'other' is selected, set it to null
 										if (isset($_POST['resident_complainant_id']) && $_POST['resident_complainant_id'] !== 'otherComplainant') {
 											$resident_complainant_id = $_POST['resident_complainant_id'];
 										} else {
-											$resident_complainant_id = null; // Set to null if "Others" or no selection is made
+											$resident_complainant_id = null; 
 										}
-
-										
 										
 										$model->addBlotters(
 											$_POST['resident_id'], 'N/A', 
@@ -699,18 +692,13 @@
 											$_POST['narrative2']);
                                         
                                             $external_complaint_name = strtoupper($_POST['external_complaint_name']);
-                                            // $accussation = strtoupper($_POST['accussation']);
                                             $witness = strtoupper($_POST['witness']);
                                             $happened = strtoupper($_POST['happened']);
-                                            
-                                            // $complaint_name = strtoupper($_POST['complaint_name']);
-                                            // $complaint_name = strtoupper($_POST['complaint_name']);
                                             
                                             $date = date('M. d, Y', strtotime($_POST['date']));
 											$time = date('g:i A', strtotime($_POST['time']));
 
                                             $resident_id = $_POST['resident_id'];
-                                            // $resident_complainant_id = $_POST['resident_complainant_id'];
 														
 											$rowsn = $model->displayResidentsProfile($resident_id);
                             				if (!empty($rowsn)) {
@@ -718,15 +706,8 @@
                             					    $first_name = $rown['fname'];
                             						$email = $rown['email'];
                             					}
-                            				}			
-														
-											// $rowsnn = $model->displayResidentsProfile($resident_complainant_id);
-                            				// if (!empty($rowsnn)) {
-                            				// 	foreach ($rowsnn as $rown) {
-                            				// 	    $first_name = $rown['fname'];
-                            				// 		$email = $rown['email'];
-                            				// 	}
-                            				// }			
+                            				}		
+													
                                             require 'vendor/autoload.php';
 
 											$mail = new PHPMailer(true);

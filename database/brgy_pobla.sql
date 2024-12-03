@@ -5973,6 +5973,49 @@ INSERT INTO `visit` (`id`, `visit_date`) VALUES
 (6409, '2024-11-30 12:39:21'),
 (6410, '2024-12-01 16:21:34');
 
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `benefits`
+--
+
+CREATE TABLE `benefits` (
+  `id` int(11) NOT NULL,
+  `benefit_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `type` varchar(255) NOT NULL,
+  `eligibility_criteria` text DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `benefit_status` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `benefits`
+--
+ALTER TABLE `benefits`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `benefits`
+--
+ALTER TABLE `benefits`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
+COMMIT;
+
+
+
 -- --------------------------------------------------------
 
 --

@@ -100,7 +100,7 @@
 				$contact = $row['contact'];
 				$address = $row['address'];
 				$date_added = $row['date_registered'];
-				$fullname = $row['complaint_name'];
+				$fullname = $row['external_complaint_name'];
 				$brgy_case = $row['brgy_case'];
 				$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 				$date_filed = $row['date_filed'];
@@ -342,11 +342,12 @@
 											<?php
 												$blot_status = 1;
 												$rows = $model->displayBlotterDetails($idddd, $blot_status);
-
+												
 												if (!empty($rows)) {
 													foreach ($rows as $row) {
 														$id = $row['id'];
 														$resident_id = $row['resident_id'];
+														$resident_complainant_id = $row['resident_complainant_id'];
 														$blotter_id = $row['blotter_id'];
 														$first_name = $row['fname'];
 														$middle_name = $row['mname'];
@@ -355,7 +356,8 @@
 														$contact = $row['contact'];
 														$address = $row['address'];
 														$date_added = $row['date_registered'];
-														$fullname = $row['complaint_name'];
+														// Handle undefined "external_complaint_name" key
+														$fullname = array_key_exists('external_complaint_name', $row) ? $row['external_complaint_name'] : 'N/A';
 														$brgy_case = $row['brgy_case'];
 														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 														$date_filed = $row['date_filed'];
@@ -371,7 +373,7 @@
 														$row['date_filed'] = date('M. d, Y g:i A', strtotime($row['date_filed']));
 														
 														$repondent = $first_name.' '.$middle_name.' '.$last_name;
-														$complainant = $fullname;
+														$external_complaint_name = $fullname;
 														$date_filed = date('M. d, Y g:i A', strtotime($date_filed));
 														$narrative = $row['narrative'];
 														$date_happened = date('M. d, Y', strtotime($row['date']));
@@ -380,23 +382,34 @@
 											<tr>
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
-												<td><?php echo $fullname; ?></td>
+												<td>
+        <?php 
+        // Check if $fullname has a value; otherwise, display resident_complainant_id
+        echo !empty($fullname) ? $fullname : $resident_complainant_id; 
+        ?>
+    </td>
+										
 												<td><?php echo $accusation ; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
 											<center><span class="badge badge-<?php echo $blotter_status2; ?>"><a href="" style="font-size: 14px;color: white;" data-toggle="modal" data-target="#status-<?php echo $row['id']; ?>"><?php echo $blotter_status; ?></a></span></center> 
 										</td>
 										<td>
-											<center><a href="#" class="btn yellow" style="width: 45px; height: 37px;" data-toggle="modal" data-target="#view-hearings-modal">
-												<div data-toggle="tooltip" title="View Hearings">
-													<i class="ti-agenda" style="font-size: 15px; margin-left: -4px;"></i>
-												</div>
-											</a>&nbsp;
+											<center>
+												
+											<!-- <a href="hearing-management?id=<?php echo $resident_id; ?>" class="btn blue" style="width: 45px; height: 37px;"><div data-toggle="tooltip" title="Hearings"><i class="ti-eye" style="font-size: 15px; margin-left:-4px;"></i></div></a>&nbsp; -->
+												
+												<a href="#" class="btn yellow" style="width: 45px; height: 37px;" data-toggle="modal" data-target="#view-hearings-modal">
+													<div data-toggle="tooltip" title="View Hearings">
+														<i class="ti-agenda" style="font-size: 15px; margin-left: -4px;"></i>
+													</div>
+												</a>&nbsp;
 											<a href="residents-profile?id=<?php echo $resident_id; ?>" class="btn blue" style="width: 45px; height: 37px;"><div data-toggle="tooltip" title="Profile"><i class="ti-eye" style="font-size: 15px; margin-left:-4px;"></i></div></a>&nbsp;
 												<a href="" class="btn red" style="width: 45px; height: 37px;" data-toggle="modal" data-target="#decline-<?php echo $id; ?>"><div data-toggle="tooltip" title="Archive"><i class="ti-archive" style="font-size: 15px; margin-left:-5px;"></i></div></a></center>
 												</td>
 											</tr>
-											<!-- Modal Structure -->
+											
+											
 											<div id="view-hearings-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewHearingsModalLabel" aria-hidden="true">
 												<div class="modal-dialog modal-lg">
 													<div class="modal-content">
@@ -407,15 +420,43 @@
 															</button>
 														</div>
 														<div class="modal-body">
-															<?php
-															// Fetch hearings from the database
+														<?php
+															if (isset($_POST['update_status'])) {
+																$hearing_id = $_POST['hearing_id'] ?? null; 
+																$case_id = $_POST['case_id'] ?? null; 
+																$complainant_status = $_POST['complainant_status'] ?? null;
+																$respondent_status = $_POST['respondent_status'] ?? null;
+																
+																$model->updateHearingStatus($hearing_id, $case_id, $complainant_status, $respondent_status);
+																
+																echo "<script>alert('Hearing status has been added');window.open('blotters-details?id=".$idddd."', '_self')</script>";
+															}
+															
 															if (isset($case_id)) {
-																$hearings = $model->getHearingSchedules($case_id); // Fetch schedules
+																$hearings = $model->getHearingSchedules($case_id);
 																if (!empty($hearings)) {
 																	echo "<ul class='list-group'>";
 																	foreach ($hearings as $hearing) {
 																		echo "<li class='list-group-item'>";
 																		echo "<strong>Date & Time:</strong> " . date("F d, Y h:i A", strtotime($hearing['hearing_date']));
+																		echo "<form method='POST' style='margin-top: 10px;'>";
+																		echo "<input type='hidden' name='case_id' value='" . $case_id . "'>";
+																		echo "<input type='hidden' name='hearing_id' value='" . $hearing['id'] . "'>";
+																		echo "<select name='complainant_status' class='form-select form-select-sm' required>";
+																		echo "<option value='' disabled selected>Complainant Status</option>";
+																		echo "<option value='No Show'>No Show</option>";
+																		echo "<option value='Show'>Show</option>";
+																		echo "</select>";
+																		echo "<select name='respondent_status' class='form-select form-select-sm' required>";
+																		echo "<option value='' disabled selected>Respondent Status</option>";
+																		echo "<option value='No Show'>No Show</option>";
+																		echo "<option value='Show'>Show</option>";
+																		echo "</select>";
+																		echo "<div style='display: flex; justify-content: flex-end; gap: 10px;'>";
+																		echo "<button type='submit' name='update_status' class='btn yellow radius-xl outline'>Update Status</button>";
+																		echo "<button type='button' name='btn' class='btn red outline radius-xl'>Delete</button>";
+																		echo "</div>";
+																		echo "</form>";
 																		echo "</li>";
 																	}
 																	echo "</ul>";
@@ -426,6 +467,8 @@
 																echo "<p>Case ID is missing.</p>";
 															}
 															?>
+
+
 														</div>
 														<div class="modal-footer">
 															<button type="button" class="btn red outline radius-xl" data-dismiss="modal">Close</button>
@@ -500,7 +543,7 @@
 																	</div>
 																	<div class="form-group col-6">
 																		<label class="col-form-label">Complainant’s Full Name</label>
-																		<input class="form-control" type="text" value="<?php echo $row['complaint_name']; ?>" readonly>
+																		<input class="form-control" type="text" value="<?php echo $row['external_complaint_name']; ?>" readonly>
 																	</div>
 																	<div class="form-group col-6">
 																		<label class="col-form-label">Complainant’s Address</label>

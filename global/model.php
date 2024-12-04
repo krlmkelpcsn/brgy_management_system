@@ -2107,21 +2107,6 @@ include('config.php');
 			$stmt->execute([$case_id, $hearing_date]);
 		}
 		
-		public function getHearingSchedules($case_id) {
-			$query = "SELECT * FROM hearings WHERE case_id = ?";
-			$stmt = $this->conn->prepare($query);
-			$stmt->bind_param("i", $case_id);
-			$stmt->execute();
-			$result = $stmt->get_result(); 
-		
-			$schedules = [];
-			while ($row = $result->fetch_assoc()) {
-				$schedules[] = $row; 
-			}
-		
-			return $schedules; 
-		}
-
 		public function addBlotters($resident_id, $brgy_case, $external_complainant_name, $resident_complainant_id, $age, $gender, $address, $contact, $time, $date, $happened, $accusation_id, $witness, $date_filed, $narrative) {
 			$query = "INSERT INTO blotters (resident_id, brgy_case, external_complainant_name, resident_complainant_id, age, gender, address, contact, time, date, happened, accusation_id, witness, date_filed, narrative, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
@@ -2327,6 +2312,58 @@ include('config.php');
 					echo "Error: Could not prepare statement.";
 			}
 		}
+		public function getHearingSchedules($case_id) {
+			$query = "SELECT id, hearing_date, complainant_status, respondent_status FROM hearings WHERE case_id = ?";
+			$stmt = $this->conn->prepare($query);
+			$stmt->bind_param("i", $case_id);
+			$stmt->execute();
+			$result = $stmt->get_result(); 
+		
+			$schedules = [];
+			while ($row = $result->fetch_assoc()) {
+				$schedules[] = $row; 
+			}
+		
+			return $schedules; 
+		}
+		
+		public function getDetailedHearingSchedules($case_id) {
+			$query = "SELECT id AS hearing_id, hearing_date, complainant_status, respondent_status FROM hearings WHERE case_id = ?";
+			$stmt = $this->conn->prepare($query);
+			$stmt->bind_param("i", $case_id);
+			$stmt->execute();
+			$result = $stmt->get_result(); 
+		
+			$schedules = [];
+			while ($row = $result->fetch_assoc()) {
+				$schedules[] = $row; 
+			}
+		
+			return $schedules; 
+		}
+		
+		public function updateHearingStatus($hearing_id, $case_id, $complainant_status, $respondent_status) {
+			if (!$hearing_id || !$case_id || !$complainant_status || !$respondent_status) {
+				echo "<div class='alert alert-warning'>All fields are required.</div>";
+				return;
+			}
+			
+			$query = "UPDATE hearings SET complainant_status = ?, respondent_status = ? WHERE id = ? AND case_id = ?";
+			$stmt = $this->conn->prepare($query);
+		
+			if ($stmt) {
+				$stmt->bind_param('ssii', $complainant_status, $respondent_status, $hearing_id, $case_id);
+				if ($stmt->execute()) {
+					echo "<div class='alert alert-success'>Status updated successfully.</div>";
+				} else {
+					echo "<div class='alert alert-danger'>Failed to update status.</div>";
+				}
+			} else {
+				echo "<div class='alert alert-danger'>Database error: Unable to prepare statement.</div>";
+			}
+		}
+		
+		
 		
 }
 

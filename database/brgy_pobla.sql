@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 03, 2024 at 02:39 AM
+-- Generation Time: Dec 04, 2024 at 06:26 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -44,9 +44,7 @@ INSERT INTO `accusations` (`id`, `accusation`) VALUES
 (11, 'RTYRTYRTYRTY'),
 (12, 'SHG;OSTIERT'),
 (13, 'HAHAHHAA'),
-(14, 'RHRTUTRU'),
-(15, 'FGHVKTPYORPI\'Y'),
-(16, 'FGHVKTPYORPI\'Y');
+(14, 'RHRTUTRU');
 
 -- --------------------------------------------------------
 
@@ -112,6 +110,32 @@ INSERT INTO `announcements` (`id`, `title`, `details`, `price`, `image`, `image_
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `benefits`
+--
+
+CREATE TABLE `benefits` (
+  `id` int(11) NOT NULL,
+  `benefit_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `type` varchar(255) NOT NULL,
+  `eligibility_criteria` text DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `benefit_status` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `benefits`
+--
+
+INSERT INTO `benefits` (`id`, `benefit_name`, `description`, `type`, `eligibility_criteria`, `start_date`, `end_date`, `status`, `benefit_status`) VALUES
+(141, 'Stone Nunezzzzzzz', 'Vel nihil voluptas d', 'Eveniet molestiae s', 'Sunt et enim ex vol', '1987-05-16 11:17:00', '1978-01-15 00:42:00', 2, NULL),
+(142, 'Lacy Merrill', 'Ut non voluptatum qu', 'Obcaecati quia provi', 'Cumque distinctio E', '2014-06-03 06:37:00', '2008-12-14 15:14:00', 1, 'In Progress');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `blotters`
 --
 
@@ -119,7 +143,7 @@ CREATE TABLE `blotters` (
   `id` int(11) NOT NULL,
   `brgy_case` varchar(50) NOT NULL,
   `resident_id` varchar(11) NOT NULL,
-  `complaint_name` varchar(200) NOT NULL,
+  `external_complainant_name` varchar(255) DEFAULT NULL,
   `age` varchar(200) NOT NULL,
   `gender` varchar(200) NOT NULL,
   `address` varchar(200) NOT NULL,
@@ -142,7 +166,7 @@ CREATE TABLE `blotters` (
 -- Dumping data for table `blotters`
 --
 
-INSERT INTO `blotters` (`id`, `brgy_case`, `resident_id`, `complaint_name`, `age`, `gender`, `address`, `contact`, `time`, `date`, `happened`, `accusation_id`, `date_filed`, `status`, `blotter_status`, `narrative`, `respondents_status`, `complainants_status`, `witness`, `resident_complainant_id`) VALUES
+INSERT INTO `blotters` (`id`, `brgy_case`, `resident_id`, `external_complainant_name`, `age`, `gender`, `address`, `contact`, `time`, `date`, `happened`, `accusation_id`, `date_filed`, `status`, `blotter_status`, `narrative`, `respondents_status`, `complainants_status`, `witness`, `resident_complainant_id`) VALUES
 (1, 'N/A', '1000003', 'jason ricardo', '21', 'Male', 'clarin', '09324321432', '02:00:00', '2024-02-08', 'house', 1, '2024-02-08 21:00:00', 1, NULL, 'jason stole my laptop at our house', '2024-11-27\r\nShow', '2024-11-27\r\nNo Show', NULL, NULL),
 (2, 'N/A', '1000003', 'randy marcos', '22', 'Male', 'crossing gabi', '09432141324', '04:03:00', '2024-02-14', 'public market', 1, '2024-03-04 15:42:00', 1, NULL, 'He stole and ran with my rolex', '', '', NULL, NULL),
 (3, 'N/A', '1000005', 'randy marcos', '25', 'Male', 'tagum', '09172034972', '04:32:00', '2024-03-02', 'public market', 1, '2024-03-03 04:40:00', 1, NULL, 'fevedwfef', '', '', NULL, NULL),
@@ -150,8 +174,12 @@ INSERT INTO `blotters` (`id`, `brgy_case`, `resident_id`, `complaint_name`, `age
 (202410001, 'N/A', '1000001', 'Full Name', '2024-11-04', 'Male', 'Address', '0934234234', '09:12:00', '2024-11-13', 'Incident Location', 1, '2024-11-13 09:12:00', 1, NULL, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', '', '', NULL, NULL),
 (202410002, 'N/A', '1000006', 'Roberto Dayon', '1999-11-13', 'Male', 'davao', '09685358126', '05:00:00', '2024-11-22', 'dvo', 1, '2024-11-12 04:04:00', 1, NULL, 'stealing of cp', '2022-1-2\r\ndid go', '2024-2-2\r\ndidnt go', NULL, NULL),
 (202410020, 'N/A', '1000012', 'Lesley Lott', '1983-09-10', 'Male', 'Quibusdam minim eos ', '94', '11:26:00', '2009-12-18', 'Voluptate est invent', 8, '2020-11-19 03:29:00', 1, NULL, 'Nesciunt rerum dese', '', '', 'Consequatur Similiq', NULL),
-(202410023, 'N/A', '1000012', '', '2015-06-01', 'Male', 'Suscipit dolores sun', '21', '16:41:00', '2019-09-19', 'Ipsa molestiae in a', 7, '2011-05-21 19:04:00', 1, NULL, 'Officia dolores omni', '', '', 'Dolor velit id quis ', 1000038),
-(202410024, 'N/A', '1000012', '', '1984-01-21', 'Male', 'Expedita quia mollit', '9', '03:37:00', '1994-07-26', 'Elit adipisicing vo', 7, '2005-01-20 02:46:00', 1, NULL, 'Nulla est pariatur ', '', '', 'Voluptate odio nisi ', 1000036);
+(202410028, 'N/A', '1000012', 'dfrhrt', '2024-12-03', 'Male', 'rfer', '56575', '04:14:00', '2024-12-03', 'frtrfrtr', 7, '2024-12-03 11:14:00', 1, NULL, 'fgfdghfjh', '', '', 'dgsdf', 1000036),
+(202410029, 'N/A', '1000012', '', '1984-11-27', 'Male', 'Lorem et deleniti vo', '84', '06:06:00', '1979-06-14', 'Corporis sed volupta', 10, '1977-05-25 01:45:00', 1, NULL, 'Veniam et est ut r', '', '', 'Velit facilis tempor', 1000036),
+(202410033, 'N/A', '1000012', 'zzzzzzzzzzzzzzzzz', '1984-09-26', 'Male', 'Velit libero except', '85', '00:10:00', '2005-07-20', 'Itaque optio in et ', 11, '1970-03-05 05:49:00', 1, NULL, 'Esse eius odio illum', '', '', 'Magni tenetur eos ne', NULL),
+(202410034, 'N/A', '1000012', 'ccccccccccccccccccccc', '2023-07-07', 'Male', 'Dolore sit est corru', '92', '18:52:00', '2005-12-10', 'Ipsa non delectus ', 8, '1983-08-21 09:44:00', 1, NULL, 'Fugiat corporis ips', '', '', 'Nobis minus sed expl', NULL),
+(202410035, 'N/A', '1000012', 'sdfsdfsdfsd', '1995-11-23', 'Male', 'Cumque quia quis eni', '39', '15:57:00', '1997-09-25', 'Quia deserunt fugit', 10, '1974-02-01 21:58:00', 1, NULL, 'Et tenetur magni dig', '', '', 'Nihil eos suscipit ', NULL),
+(202410036, 'N/A', '1000012', '', '2003-10-26', 'Male', 'Voluptates magni qui', '40', '16:04:00', '2003-03-01', 'Aperiam minim nulla ', 10, '1999-10-19 17:26:00', 1, NULL, 'Quas quo saepe odit ', '', '', 'Quis pariatur Qui a', 1000003);
 
 -- --------------------------------------------------------
 
@@ -358,7 +386,8 @@ CREATE TABLE `external_complainants` (
 
 INSERT INTO `external_complainants` (`id`, `non_resident_complainant`) VALUES
 (1, 'EFGCRTVHRTYH'),
-(2, 'T4960496456');
+(2, 'T4960496456'),
+(3, 'EGCERTRY');
 
 -- --------------------------------------------------------
 
@@ -369,25 +398,27 @@ INSERT INTO `external_complainants` (`id`, `non_resident_complainant`) VALUES
 CREATE TABLE `hearings` (
   `id` int(11) NOT NULL,
   `case_id` int(11) NOT NULL,
-  `hearing_date` datetime NOT NULL
+  `hearing_date` datetime NOT NULL,
+  `complainant_status` varchar(20) DEFAULT 'No Show',
+  `respondent_status` varchar(20) DEFAULT 'No Show'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `hearings`
 --
 
-INSERT INTO `hearings` (`id`, `case_id`, `hearing_date`) VALUES
-(10, 1, '2024-11-05 12:00:00'),
-(11, 1, '2024-11-12 12:00:00'),
-(12, 1, '2024-11-12 12:00:00'),
-(13, 1, '2024-11-29 12:00:00'),
-(14, 1, '2024-12-19 12:00:00'),
-(15, 1, '2024-11-26 12:00:00'),
-(16, 1, '2024-11-21 12:00:00'),
-(17, 1, '2024-11-06 12:00:00'),
-(18, 1, '2024-12-20 12:00:00'),
-(19, 3, '2024-11-21 12:00:00'),
-(20, 3, '2024-11-04 12:00:00');
+INSERT INTO `hearings` (`id`, `case_id`, `hearing_date`, `complainant_status`, `respondent_status`) VALUES
+(10, 1, '2024-11-05 12:00:00', 'Resolved', 'Resolved'),
+(11, 1, '2024-11-12 12:00:00', 'Pending', 'Pending'),
+(12, 1, '2024-11-12 12:00:00', 'Pending', 'Resolved'),
+(13, 1, '2024-11-29 12:00:00', 'Pending', 'Pending'),
+(14, 1, '2024-12-19 12:00:00', 'Pending', 'Pending'),
+(15, 1, '2024-11-26 12:00:00', 'Pending', 'Pending'),
+(16, 1, '2024-11-21 12:00:00', 'Pending', 'Pending'),
+(17, 1, '2024-11-06 12:00:00', 'Pending', 'Pending'),
+(18, 1, '2024-12-20 12:00:00', 'Pending', 'Pending'),
+(19, 3, '2024-11-21 12:00:00', 'No Show', 'No Show'),
+(20, 3, '2024-11-04 12:00:00', 'No Show', 'No Show');
 
 -- --------------------------------------------------------
 
@@ -5973,49 +6004,6 @@ INSERT INTO `visit` (`id`, `visit_date`) VALUES
 (6409, '2024-11-30 12:39:21'),
 (6410, '2024-12-01 16:21:34');
 
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `benefits`
---
-
-CREATE TABLE `benefits` (
-  `id` int(11) NOT NULL,
-  `benefit_name` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `type` varchar(255) NOT NULL,
-  `eligibility_criteria` text DEFAULT NULL,
-  `start_date` datetime DEFAULT NULL,
-  `end_date` datetime DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `benefit_status` varchar(30) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `benefits`
---
-ALTER TABLE `benefits`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `benefits`
---
-ALTER TABLE `benefits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
-COMMIT;
-
-
-
 -- --------------------------------------------------------
 
 --
@@ -6063,6 +6051,12 @@ ALTER TABLE `admin`
 -- Indexes for table `announcements`
 --
 ALTER TABLE `announcements`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `benefits`
+--
+ALTER TABLE `benefits`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -6207,10 +6201,16 @@ ALTER TABLE `announcements`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
+-- AUTO_INCREMENT for table `benefits`
+--
+ALTER TABLE `benefits`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=143;
+
+--
 -- AUTO_INCREMENT for table `blotters`
 --
 ALTER TABLE `blotters`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202410025;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202410037;
 
 --
 -- AUTO_INCREMENT for table `borrow`
@@ -6234,7 +6234,7 @@ ALTER TABLE `event_attendees`
 -- AUTO_INCREMENT for table `external_complainants`
 --
 ALTER TABLE `external_complainants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `hearings`

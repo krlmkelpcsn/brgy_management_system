@@ -261,9 +261,17 @@
 														$address = $row['address'];
 														$date_added = $row['date_registered'];
 														$resident_complainant_id = $row['resident_complainant_id'];
-														$fullname = array_key_exists('external_complaint_name', $row) ? $row['external_complaint_name'] : 'N/A';
+														
+														$fullname = array_key_exists('external_complainant_name', $row) ? $row['external_complainant_name'] : 'N/A';
 														$brgy_case = $row['brgy_case'];
 														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
+														$res_complainant = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
+														$fullnamee = !empty($row['external_complainant_name']) 
+															? htmlspecialchars($row['external_complainant_name']) 
+															: htmlspecialchars($res_complainant);
+														
+														$brgy_case = $row['brgy_case'];
+														// $accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {
@@ -288,7 +296,13 @@
 											<tr>
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
-												<td><?php echo $fullname; ?></td>
+												<td>
+													<?php 
+													echo !empty($row['external_complainant_name']) 
+														? htmlspecialchars($row['external_complainant_name']) 
+														: htmlspecialchars($res_complainant); 
+													?>
+												</td>
 												<td><?php echo $accusation; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>

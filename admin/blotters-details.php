@@ -347,7 +347,6 @@
 													foreach ($rows as $row) {
 														$id = $row['id'];
 														$resident_id = $row['resident_id'];
-														$resident_complainant_id = $row['resident_complainant_id'];
 														$blotter_id = $row['blotter_id'];
 														$first_name = $row['fname'];
 														$middle_name = $row['mname'];
@@ -356,10 +355,16 @@
 														$contact = $row['contact'];
 														$address = $row['address'];
 														$date_added = $row['date_registered'];
-														// Handle undefined "external_complaint_name" key
-														$fullname = array_key_exists('external_complaint_name', $row) ? $row['external_complaint_name'] : 'N/A';
+														
+														// $fullname = array_key_exists('external_complainant_name', $row) ? $row['external_complainant_name'] : 'N/A';
 														$brgy_case = $row['brgy_case'];
 														$accusation = !empty($row['accusation']) ? htmlspecialchars($row['accusation']) : 'Unknown';
+														$res_complainant = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
+														$fullname = !empty($row['external_complainant_name']) 
+															? htmlspecialchars($row['external_complainant_name']) 
+															: htmlspecialchars($res_complainant);
+														$brgy_case = $row['brgy_case'];
+														// $accussation = $row['accussation'];
 														$date_filed = $row['date_filed'];
 														$blotter_status = !empty($row['blotter_status']) ? $row['blotter_status'] : "Active";
 														if ($blotter_status == "Settled") {
@@ -373,7 +378,7 @@
 														$row['date_filed'] = date('M. d, Y g:i A', strtotime($row['date_filed']));
 														
 														$repondent = $first_name.' '.$middle_name.' '.$last_name;
-														$external_complaint_name = $fullname;
+														$complainant = $fullname;
 														$date_filed = date('M. d, Y g:i A', strtotime($date_filed));
 														$narrative = $row['narrative'];
 														$date_happened = date('M. d, Y', strtotime($row['date']));
@@ -382,14 +387,10 @@
 											<tr>
 												<td><?php echo $id; ?></td>
 												<td><?php echo $first_name.' '.$middle_name.' '.$last_name; ?></td>
-												<td>
-        <?php 
-        // Check if $fullname has a value; otherwise, display resident_complainant_id
-        echo !empty($fullname) ? $fullname : $resident_complainant_id; 
-        ?>
-    </td>
+											
+												<td><?php echo $fullname; ?></td>
+												<td><?php echo $accusation; ?></td>
 										
-												<td><?php echo $accusation ; ?></td>
 												<td style="font-size: 14px;"><?php echo date('M. d, Y g:i A', strtotime($date_filed)); ?></td>
 												<td>
 											<center><span class="badge badge-<?php echo $blotter_status2; ?>"><a href="" style="font-size: 14px;color: white;" data-toggle="modal" data-target="#status-<?php echo $row['id']; ?>"><?php echo $blotter_status; ?></a></span></center> 
